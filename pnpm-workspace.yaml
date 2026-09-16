@@ -1,0 +1,45 @@
+# pnpm-workspace.yaml
+
+packages:
+  - '.'
+
+# =========================================================
+# Seguridad: scripts de instalación
+# =========================================================
+
+ignoreScripts: true
+enablePrePostScripts: false
+strictDepBuilds: true
+dangerouslyAllowAllBuilds: false
+allowBuilds: {}
+
+# =========================================================
+# Seguridad: estabilidad contra paquetes recién publicados
+# =========================================================
+
+minimumReleaseAge: 1440
+minimumReleaseAgeExclude: []
+
+# =========================================================
+# Seguridad: resolución estricta
+# =========================================================
+
+strictPeerDependencies: true
+autoInstallPeers: false
+resolvePeersFromWorkspaceRoot: true
+
+# =========================================================
+# Optimización / consistencia
+# =========================================================
+
+lockfile: true
+sharedWorkspaceLockfile: true
+dedupePeerDependents: true
+preferOffline: true
+reporter: append-only
+
+# =========================================================
+# Gestión del package manager
+# =========================================================
+
+pmOnFail: download

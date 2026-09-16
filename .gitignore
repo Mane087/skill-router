@@ -1,0 +1,13 @@
+private/
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+.DS_Store
+*.log
+.env
+.env.*
+!.env.example
+
+# Claude Code local session settings
+.claude/settings.local.json

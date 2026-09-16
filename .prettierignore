@@ -1,0 +1,6 @@
+dist/
+coverage/
+node_modules/
+private/
+pnpm-lock.yaml
+.claude/settings.local.json
