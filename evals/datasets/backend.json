@@ -1,0 +1,41 @@
+{
+  "name": "backend",
+  "cases": [
+    {
+      "id": "nestjs-controller",
+      "task": "Create a NestJS controller exposing the payments endpoint",
+      "phase": "implementation",
+      "stack": ["nestjs", "typescript"],
+      "files": ["src/payments/payments.controller.ts"],
+      "expected": ["nestjs", "typescript"],
+      "notExpected": ["angular", "react", "tailwind", "playwright"]
+    },
+    {
+      "id": "database-schema",
+      "task": "Design the schema and write a migration for the ledger tables",
+      "phase": "planning",
+      "stack": ["postgres", "sql"],
+      "files": ["db/migrations/001_ledger.sql"],
+      "expected": ["postgres"],
+      "notExpected": ["angular", "tailwind", "playwright", "react"]
+    },
+    {
+      "id": "backend-unit-tests",
+      "task": "Write unit tests with mocks for the payments provider",
+      "phase": "testing",
+      "stack": ["nestjs", "jest", "typescript"],
+      "files": ["src/payments/payments.provider.spec.ts"],
+      "expected": ["jest", "nestjs"],
+      "notExpected": ["tailwind", "playwright", "react"]
+    },
+    {
+      "id": "sql-query",
+      "task": "Write a query that aggregates balances per account",
+      "phase": "implementation",
+      "stack": ["postgres", "sql"],
+      "files": ["db/queries/balances.sql"],
+      "expected": ["postgres"],
+      "notExpected": ["angular", "react", "jest"]
+    }
+  ]
+}

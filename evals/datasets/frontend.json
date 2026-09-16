@@ -1,0 +1,53 @@
+{
+  "name": "frontend",
+  "cases": [
+    {
+      "id": "angular-component",
+      "task": "Create an Angular component for account movements with unit tests",
+      "phase": "implementation",
+      "stack": ["angular", "typescript"],
+      "files": [
+        "src/app/movements/movements.component.ts",
+        "src/app/movements/movements.component.spec.ts"
+      ],
+      "expected": ["angular", "jest", "typescript"],
+      "notExpected": ["nestjs", "react", "postgres", "playwright"]
+    },
+    {
+      "id": "angular-service",
+      "task": "Create an Angular service that calls the accounts endpoint",
+      "phase": "implementation",
+      "stack": ["angular", "typescript"],
+      "files": ["src/app/accounts/accounts.service.ts"],
+      "expected": ["angular", "typescript"],
+      "notExpected": ["nestjs", "react", "tailwind"]
+    },
+    {
+      "id": "react-hook",
+      "task": "Create a React hook that debounces user input",
+      "phase": "implementation",
+      "stack": ["react", "typescript"],
+      "files": ["src/hooks/useDebounce.tsx"],
+      "expected": ["react", "typescript"],
+      "notExpected": ["angular", "nestjs", "postgres"]
+    },
+    {
+      "id": "styling",
+      "task": "Style the dashboard layout with tailwind utility classes",
+      "phase": "implementation",
+      "stack": ["tailwind"],
+      "keywords": ["styling", "layout"],
+      "expected": ["tailwind"],
+      "notExpected": ["nestjs", "postgres", "jest", "playwright"]
+    },
+    {
+      "id": "e2e-test",
+      "task": "Write a playwright end to end test for the checkout flow",
+      "phase": "testing",
+      "stack": ["playwright", "typescript"],
+      "files": ["tests/checkout.e2e.ts"],
+      "expected": ["playwright"],
+      "notExpected": ["postgres", "nestjs", "tailwind"]
+    }
+  ]
+}

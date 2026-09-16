@@ -11,3 +11,6 @@ coverage/
 
 # Claude Code local session settings
 .claude/settings.local.json
+
+# Evaluation output; the baseline next to it is versioned
+evals/reports/

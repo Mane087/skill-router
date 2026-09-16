@@ -72,8 +72,23 @@ The only hard filter is `excludes`. A skill matching a negative rule is removed
 rather than ranked low, because a low score would still let it win a query with
 few candidates.
 
-The candidate set is kept small by dropping anything that scored zero, which
-costs nothing: scoring is pure computation over metadata already in memory.
+## Admission
+
+Scoring above zero is not enough to be retrieved. A candidate must match at
+least one signal about the **subject** of the task: framework, language, intent,
+file or tag.
+
+Phase and relation are deliberately excluded from that list. Phase is context,
+not subject — nearly every skill declares `implementation`, so matching it says
+nothing about the topic. A relation only says that some other skill vouches for
+this one. Both reposition a skill that is already relevant; neither makes one
+relevant.
+
+This rule is not a guess. The first evaluation run measured a 67% false positive
+rate, with ten of fourteen cases returning an explicitly barred skill, because
+phase alone was admitting every skill to every task. Requiring a subject match
+cut false positives to 39% and forbidden results to 36%. See
+[evaluation.md](evaluation.md).
 
 **`related` is a second pass.** A relation only means something once the other
 candidates are known, so relations are scored after the first pass. A relation
@@ -88,10 +103,16 @@ tests" does not match a skill tagged `testing`, and `test` never matches inside
 `latest`. Closing that gap is what the plan defers to BM25 and embeddings, once
 the evaluation suite shows the deterministic ranking is not enough.
 
-**The weights above are a hypothesis, not a result.** They come from the plan's
-starting model and have never been measured against a dataset. The plan is
-explicit that calibration is the job of the evaluation suite, and until that
-suite exists the ordering between close results should not be trusted. The
-reference run in Milestone 1 is not reproduced exactly: this implementation puts
-`typescript` ahead of `jest`, because for that query `typescript` matches the
-requested phase and language while `jest` matches only a file pattern.
+**The weights above are still uncalibrated.** They come from the plan's starting
+model. The evaluation suite now measures them, but fourteen cases is not enough
+to tune against without fitting the weights to that dataset, so they are
+unchanged. The ordering between close results should not be trusted yet.
+
+Two weaknesses are measured rather than suspected: a shared `language` admits
+almost any skill, since most of the ecosystem is TypeScript, and tags collide
+lexically — `tailwind` is retrieved for "Design the schema" because it declares
+the tag `design`. Both are recorded in [evaluation.md](evaluation.md).
+
+Milestone 1's reference ordering is not reproduced exactly: this implementation
+puts `typescript` ahead of `jest`, because for that query `typescript` matches
+the requested phase and language while `jest` matches only a file pattern.

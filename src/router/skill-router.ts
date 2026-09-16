@@ -4,6 +4,7 @@ import { findExclusion } from './filters/exclusion-filter.js'
 import { mapRelations, scoreRelation, scoreSkill } from './scoring/composite-scorer.js'
 import { DEFAULT_RANKING_WEIGHTS } from './scoring/weights.js'
 import { formatSkillId } from '../domain/skill/skill-id.js'
+import type { RankingSignal } from '../domain/ranking/ranking-reason.js'
 import type { SignalScore } from '../domain/ranking/score.js'
 import type { SkillMatch } from '../domain/skill/skill-match.js'
 import type { SkillQuery } from '../domain/skill/skill-query.js'
@@ -18,6 +19,17 @@ export interface SkillRouterOptions {
 export interface SkillRouter {
   search(query: SkillQuery): Promise<readonly SkillMatch[]>
 }
+
+/**
+ * Signals that say something about the subject of the task.
+ *
+ * Phase and relation are deliberately absent. Phase is context, not subject:
+ * nearly every skill declares `implementation`, so matching it proves nothing
+ * about the topic. A relation says only that some other skill vouches for this
+ * one. Both reposition a skill that is already relevant; neither makes one
+ * relevant.
+ */
+const SUBJECT_SIGNALS: readonly RankingSignal[] = ['framework', 'language', 'intent', 'file', 'tag']
 
 interface Candidate {
   readonly skill: Skill
@@ -74,14 +86,19 @@ function selectCandidates(
 
     const signals = scoreSkill(skill, query, weights)
 
-    // A skill that matches nothing on its own never enters the set, so a
-    // relation can lift a relevant skill but cannot admit an irrelevant one.
-    if (combineSignals(signals) > 0) {
+    // Requires a subject match, not merely a positive score. Without this,
+    // every skill declaring the requested phase was retrieved for every task,
+    // which the evaluation suite measured as a 67% false positive rate.
+    if (matchesSubject(signals)) {
       candidates.push({ skill, signals })
     }
   }
 
   return candidates
+}
+
+function matchesSubject(signals: readonly SignalScore[]): boolean {
+  return signals.some((score) => score.ratio > 0 && SUBJECT_SIGNALS.includes(score.signal))
 }
 
 function toMatch(

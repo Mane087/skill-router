@@ -1,0 +1,43 @@
+{
+  "name": "generic",
+  "cases": [
+    {
+      "id": "plan-redesign",
+      "task": "Implement authentication redesign",
+      "phase": "planning",
+      "expected": ["architecture-planning", "ask-questions", "tdd"],
+      "notExpected": ["playwright", "tailwind", "postgres"]
+    },
+    {
+      "id": "review-branch",
+      "task": "Review current branch for correctness and insecure defaults",
+      "phase": "review",
+      "expected": ["code-review", "insecure-defaults", "fp-check"],
+      "notExpected": ["tailwind", "playwright", "postgres"]
+    },
+    {
+      "id": "refactor-duplication",
+      "task": "Refactor this module to simplify it and remove duplication",
+      "phase": "implementation",
+      "keywords": ["duplication", "simplify"],
+      "expected": ["write-good-code"],
+      "notExpected": ["postgres", "playwright", "tailwind"]
+    },
+    {
+      "id": "clarify-request",
+      "task": "The requirement is underspecified, clarify the scope before starting",
+      "phase": "planning",
+      "keywords": ["clarify", "scope"],
+      "expected": ["ask-questions"],
+      "notExpected": ["postgres", "playwright", "jest"]
+    },
+    {
+      "id": "verify-finding",
+      "task": "Verify whether this security finding is exploitable or a false positive",
+      "phase": "review",
+      "keywords": ["verify", "exploitable"],
+      "expected": ["fp-check"],
+      "notExpected": ["tailwind", "react", "postgres"]
+    }
+  ]
+}

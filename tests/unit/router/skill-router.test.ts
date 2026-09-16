@@ -138,10 +138,9 @@ describe('search', () => {
   })
 
   it('reports the scope alongside the identity', async () => {
-    const matches = await search([skill('house-style', { phases: ['review'] }, 'project')], {
-      task: 'review the branch',
-      phase: 'review',
-    })
+    const houseStyle = skill('house-style', { phases: ['review'], tags: ['branch'] }, 'project')
+
+    const matches = await search([houseStyle], { task: 'review the branch', phase: 'review' })
 
     expect(matches[0]?.scope).toBe('project')
   })
@@ -173,10 +172,10 @@ describe('search determinism', () => {
   })
 
   it('breaks ties by identity so equal scores keep a stable order', async () => {
-    const left = skill('alpha', { phases: ['review'] })
-    const right = skill('beta', { phases: ['review'] })
+    const left = skill('alpha', { phases: ['review'], tags: ['branch'] })
+    const right = skill('beta', { phases: ['review'], tags: ['branch'] })
 
-    const matches = await search([right, left], { task: 'review it', phase: 'review' })
+    const matches = await search([right, left], { task: 'review the branch', phase: 'review' })
 
     expect(matches.map((match) => match.id.name)).toEqual(['alpha', 'beta'])
   })
@@ -238,12 +237,45 @@ describe('search explanations', () => {
   })
 
   it('never reports a signal that did not contribute', async () => {
+    // Admitted on language, which leaves framework at zero for the same query.
     const matches = await search([TYPESCRIPT], {
       task: 'write some code',
       phase: 'implementation',
+      stack: ['typescript'],
     })
 
     expect(matches[0]!.reasons.map((reason) => reason.signal)).not.toContain('framework')
+  })
+})
+
+describe('candidate admission', () => {
+  it('drops a skill that only matches the phase, which nearly every skill declares', async () => {
+    const offTopic = skill('postgres', { phases: ['implementation'], tags: ['sql', 'database'] })
+
+    const matches = await search([ANGULAR, offTopic], {
+      task: 'create an angular component',
+      phase: 'implementation',
+      stack: ['angular'],
+    })
+
+    expect(matches.map((match) => match.id.name)).toEqual(['angular'])
+  })
+
+  it('keeps a skill that matches the phase and the subject', async () => {
+    const onTopic = skill('forms', { phases: ['implementation'], tags: ['component', 'forms'] })
+
+    const matches = await search([onTopic], {
+      task: 'create a component',
+      phase: 'implementation',
+    })
+
+    expect(matches.map((match) => match.id.name)).toEqual(['forms'])
+  })
+
+  it('admits a skill on a file pattern alone, which is a signal about the subject', async () => {
+    const matches = await search([JEST], { task: 'work on this', files: ['a.spec.ts'] })
+
+    expect(matches.map((match) => match.id.name)).toEqual(['jest'])
   })
 })
 

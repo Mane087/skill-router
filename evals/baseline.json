@@ -1,0 +1,249 @@
+{
+  "datasets": [
+    {
+      "name": "frontend",
+      "outcomes": [
+        {
+          "id": "angular-component",
+          "returned": ["angular", "typescript", "jest", "playwright"],
+          "recallAt1": 0.3333333333333333,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 1,
+          "precisionAt5": 0.75,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 1,
+          "falsePositiveRate": 0.25
+        },
+        {
+          "id": "angular-service",
+          "returned": ["angular", "typescript", "jest", "playwright"],
+          "recallAt1": 0.5,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 0.6666666666666666,
+          "precisionAt5": 0.5,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 0,
+          "falsePositiveRate": 0.5
+        },
+        {
+          "id": "react-hook",
+          "returned": ["react", "typescript", "tailwind", "jest", "playwright"],
+          "recallAt1": 0.5,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 0.6666666666666666,
+          "precisionAt5": 0.4,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 0,
+          "falsePositiveRate": 0.6
+        },
+        {
+          "id": "styling",
+          "returned": ["tailwind"],
+          "recallAt1": 1,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 1,
+          "precisionAt5": 1,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 0,
+          "falsePositiveRate": 0
+        },
+        {
+          "id": "e2e-test",
+          "returned": ["playwright", "jest", "tdd", "angular", "nestjs"],
+          "recallAt1": 1,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 0.3333333333333333,
+          "precisionAt5": 0.2,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 1,
+          "falsePositiveRate": 0.8
+        }
+      ],
+      "summary": {
+        "cases": 5,
+        "recallAt1": 0.6666666666666666,
+        "recallAt3": 1,
+        "recallAt5": 1,
+        "precisionAt3": 0.7333333333333333,
+        "precisionAt5": 0.5700000000000001,
+        "mrr": 1,
+        "ndcgAt5": 1,
+        "falsePositiveRate": 0.43000000000000005,
+        "forbiddenRate": 0.4
+      }
+    },
+    {
+      "name": "backend",
+      "outcomes": [
+        {
+          "id": "nestjs-controller",
+          "returned": ["nestjs", "typescript", "jest", "angular", "react"],
+          "recallAt1": 0.5,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 0.6666666666666666,
+          "precisionAt5": 0.4,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 2,
+          "falsePositiveRate": 0.6
+        },
+        {
+          "id": "database-schema",
+          "returned": ["postgres", "architecture-planning", "tailwind"],
+          "recallAt1": 1,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 0.3333333333333333,
+          "precisionAt5": 0.3333333333333333,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 1,
+          "falsePositiveRate": 0.6666666666666666
+        },
+        {
+          "id": "backend-unit-tests",
+          "returned": ["jest", "nestjs", "angular", "playwright", "react"],
+          "recallAt1": 0.5,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 0.6666666666666666,
+          "precisionAt5": 0.4,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 2,
+          "falsePositiveRate": 0.6
+        },
+        {
+          "id": "sql-query",
+          "returned": ["postgres"],
+          "recallAt1": 1,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 1,
+          "precisionAt5": 1,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 0,
+          "falsePositiveRate": 0
+        }
+      ],
+      "summary": {
+        "cases": 4,
+        "recallAt1": 0.75,
+        "recallAt3": 1,
+        "recallAt5": 1,
+        "precisionAt3": 0.6666666666666666,
+        "precisionAt5": 0.5333333333333333,
+        "mrr": 1,
+        "ndcgAt5": 1,
+        "falsePositiveRate": 0.4666666666666667,
+        "forbiddenRate": 0.75
+      }
+    },
+    {
+      "name": "generic",
+      "outcomes": [
+        {
+          "id": "plan-redesign",
+          "returned": ["architecture-planning"],
+          "recallAt1": 0.3333333333333333,
+          "recallAt3": 0.3333333333333333,
+          "recallAt5": 0.3333333333333333,
+          "precisionAt3": 1,
+          "precisionAt5": 1,
+          "reciprocalRank": 1,
+          "ndcgAt5": 0.46927872602275644,
+          "forbidden": 0,
+          "falsePositiveRate": 0
+        },
+        {
+          "id": "review-branch",
+          "returned": ["code-review", "write-good-code", "insecure-defaults"],
+          "recallAt1": 0.3333333333333333,
+          "recallAt3": 0.6666666666666666,
+          "recallAt5": 0.6666666666666666,
+          "precisionAt3": 0.6666666666666666,
+          "precisionAt5": 0.6666666666666666,
+          "reciprocalRank": 1,
+          "ndcgAt5": 0.7039180890341347,
+          "forbidden": 0,
+          "falsePositiveRate": 0.3333333333333333
+        },
+        {
+          "id": "refactor-duplication",
+          "returned": ["write-good-code", "tdd", "nestjs"],
+          "recallAt1": 1,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 0.3333333333333333,
+          "precisionAt5": 0.3333333333333333,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 0,
+          "falsePositiveRate": 0.6666666666666666
+        },
+        {
+          "id": "clarify-request",
+          "returned": ["ask-questions"],
+          "recallAt1": 1,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 1,
+          "precisionAt5": 1,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 0,
+          "falsePositiveRate": 0
+        },
+        {
+          "id": "verify-finding",
+          "returned": ["fp-check", "insecure-defaults"],
+          "recallAt1": 1,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 0.5,
+          "precisionAt5": 0.5,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 0,
+          "falsePositiveRate": 0.5
+        }
+      ],
+      "summary": {
+        "cases": 5,
+        "recallAt1": 0.7333333333333333,
+        "recallAt3": 0.8,
+        "recallAt5": 0.8,
+        "precisionAt3": 0.7,
+        "precisionAt5": 0.7,
+        "mrr": 1,
+        "ndcgAt5": 0.8346393630113782,
+        "falsePositiveRate": 0.3,
+        "forbiddenRate": 0
+      }
+    }
+  ],
+  "summary": {
+    "cases": 14,
+    "recallAt1": 0.7142857142857143,
+    "recallAt3": 0.9285714285714286,
+    "recallAt5": 0.9285714285714286,
+    "precisionAt3": 0.7023809523809524,
+    "precisionAt5": 0.605952380952381,
+    "mrr": 1,
+    "ndcgAt5": 0.9409426296469208,
+    "falsePositiveRate": 0.39404761904761904,
+    "forbiddenRate": 0.35714285714285715
+  }
+}

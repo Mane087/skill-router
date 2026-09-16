@@ -49,6 +49,11 @@ jobs:
       - name: Test with coverage
         run: pnpm test:coverage
 
+      # Retrieval quality is a separate question from correctness: the suite
+      # can be green while the router returns the wrong skills.
+      - name: Evaluate ranking against the baseline
+        run: pnpm eval
+
       - name: Build
         run: pnpm build
 

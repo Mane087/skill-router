@@ -3,9 +3,9 @@
 MCP server that discovers, ranks and retrieves agent skills so an agent loads the
 smallest sufficient context instead of an entire skill catalog.
 
-> Status: phase 4 (router). Skills are discovered, indexed and ranked with
-> explanations. The MCP server answers the `initialize` handshake but does not
-> expose the routing tools yet: that is phase 6.
+> Status: phase 5 (evaluation). Ranking is measured against a dataset with a
+> regression baseline. The MCP server answers the `initialize` handshake but
+> does not expose the routing tools yet: that is phase 6.
 
 ## Requirements
 
@@ -19,6 +19,7 @@ pnpm install
 pnpm typecheck
 pnpm lint
 pnpm test
+pnpm eval
 pnpm build
 ```
 
@@ -67,6 +68,15 @@ indexed skills, so it can be tested without a filesystem. See
 [docs/ranking.md](docs/ranking.md) for the signals, the scoring formula, the
 departures from the original plan and the known limits — including that the
 weights are still an uncalibrated starting point.
+
+## Evaluation
+
+Coverage cannot tell you whether the right skills were retrieved. `pnpm eval`
+runs the router against a dataset and reports recall, precision, MRR, NDCG and —
+most importantly for this project — the false positive rate. Runs are compared
+against a stored baseline so a ranking change has to be looked at on purpose.
+See [docs/evaluation.md](docs/evaluation.md), which also records what the first
+run found and the weaknesses it measured.
 
 ## Architecture
 
