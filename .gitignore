@@ -9,6 +9,8 @@ coverage/
 .env.*
 !.env.example
 
+.vscode/
+
 # Claude Code local session settings
 .claude/settings.local.json
 
