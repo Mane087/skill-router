@@ -3,8 +3,8 @@
 MCP server that discovers, ranks and retrieves agent skills so an agent loads the
 smallest sufficient context instead of an entire skill catalog.
 
-> Status: phase 1 (foundation). The MCP server starts and answers the
-> `initialize` handshake, but exposes no routing tools yet.
+> Status: phase 2 (skill model). Manifests are parsed and validated; the MCP
+> server answers the `initialize` handshake but exposes no routing tools yet.
 
 ## Requirements
 
@@ -20,6 +20,12 @@ pnpm lint
 pnpm test
 pnpm build
 ```
+
+## Skills
+
+A skill is a `SKILL.md` whose YAML frontmatter says when it is relevant. See
+[docs/skill-manifest.md](docs/skill-manifest.md) for the fields, the
+normalization rules, the size limits and the reasons a manifest is rejected.
 
 ## Architecture
 

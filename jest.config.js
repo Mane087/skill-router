@@ -26,15 +26,21 @@ export default {
   coverageDirectory: 'coverage',
   coverageReporters: ['text-summary', 'lcov'],
 
-  // Per-path thresholds for router/**, infrastructure/filesystem/** and
-  // infrastructure/manifest/** (95/95/95/90) are added in the phase that
-  // creates each directory; Jest fails when a threshold path matches no file.
   coverageThreshold: {
     global: {
       statements: 90,
       lines: 90,
       functions: 90,
       branches: 85,
+    },
+    // Parsing untrusted manifests is critical code and carries a stricter bar.
+    // Thresholds for router/** and infrastructure/filesystem/** are added in
+    // the phase that creates them: Jest fails when a path matches no file.
+    './src/infrastructure/manifest/': {
+      statements: 95,
+      lines: 95,
+      functions: 95,
+      branches: 90,
     },
   },
 
