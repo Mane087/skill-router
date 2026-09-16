@@ -3,8 +3,9 @@
 MCP server that discovers, ranks and retrieves agent skills so an agent loads the
 smallest sufficient context instead of an entire skill catalog.
 
-> Status: phase 6 (MCP adapter). The server exposes the three operations over
-> stdio and has been driven end to end by a real client.
+> Status: phase 6 (MCP adapter) and phase 10 (security CI). The server exposes
+> the three operations over stdio and has been driven end to end by a real
+> client. Every pull request runs CodeQL and a dependency review.
 
 ## Requirements
 
@@ -12,6 +13,10 @@ smallest sufficient context instead of an entire skill catalog.
 - pnpm 11
 
 ## Development
+
+`main` is protected: changes go through a pull request that must pass CI, both
+CodeQL analyses and the dependency review. See
+[CONTRIBUTING.md](CONTRIBUTING.md).
 
 ```bash
 pnpm install
