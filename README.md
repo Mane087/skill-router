@@ -116,6 +116,16 @@ against a stored baseline so a ranking change has to be looked at on purpose.
 See [docs/evaluation.md](docs/evaluation.md), which also records what the first
 run found and the weaknesses it measured.
 
+## Documentation
+
+| Document                                    | Covers                                      |
+| ------------------------------------------- | ------------------------------------------- |
+| [contracts.md](docs/contracts.md)           | Inputs, outputs, operations and error codes |
+| [skill-manifest.md](docs/skill-manifest.md) | Manifest fields, normalization and limits   |
+| [ranking.md](docs/ranking.md)               | Signals, scoring and admission              |
+| [evaluation.md](docs/evaluation.md)         | How retrieval quality is measured           |
+| [adr/](docs/adr/README.md)                  | Why the architecture is the way it is       |
+
 ## Architecture
 
 Dependencies point inwards: `domain` ← `application` ← `infrastructure` / `adapters`.
