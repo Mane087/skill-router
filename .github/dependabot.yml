@@ -12,6 +12,12 @@ updates:
     cooldown:
       default-days: 2
     open-pull-requests-limit: 5
+    ignore:
+      # @types/node must track the runtime's major line, not the newest one.
+      # Types for Node 26 describe APIs that do not exist on Node 24, so a
+      # major bump would let the typecheck approve code that fails at runtime.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
     groups:
       development:
         dependency-type: development
