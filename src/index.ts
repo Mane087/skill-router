@@ -30,3 +30,18 @@ export type {
 } from './infrastructure/registry/registry-builder.js'
 export type { ScanLimits, ScannedSkill } from './infrastructure/registry/skill-scanner.js'
 export type { PathPolicy } from './infrastructure/filesystem/safe-path.js'
+
+export {
+  createSkillQuery,
+  DEFAULT_SEARCH_LIMIT,
+  MAX_SEARCH_LIMIT,
+} from './domain/skill/skill-query.js'
+export type { SkillQuery, SkillQueryInput } from './domain/skill/skill-query.js'
+export type { SkillMatch } from './domain/skill/skill-match.js'
+export { formatRankingReason, RANKING_SIGNALS } from './domain/ranking/ranking-reason.js'
+export type { RankingReason, RankingSignal } from './domain/ranking/ranking-reason.js'
+export type { SignalScore } from './domain/ranking/score.js'
+export { createSkillRouter } from './router/skill-router.js'
+export type { SkillRouter, SkillRouterOptions } from './router/skill-router.js'
+export { DEFAULT_RANKING_WEIGHTS } from './router/scoring/weights.js'
+export type { RankingWeights } from './router/scoring/weights.js'

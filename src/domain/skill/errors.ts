@@ -24,3 +24,7 @@ export class InvalidManifestError extends SkillRouterError {
     this.issues = issues
   }
 }
+
+export class InvalidSkillQueryError extends SkillRouterError {
+  readonly code = 'INVALID_SKILL_QUERY'
+}

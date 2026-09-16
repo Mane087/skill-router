@@ -21,8 +21,10 @@ export default {
     'src/**/*.ts',
     '!src/**/*.d.ts',
     '!src/index.ts',
-    // Ports are type-only contracts: they compile to an empty module.
+    // Type-only modules: they compile to an empty module and can hold no
+    // coverage, so measuring them only makes the report misleading.
     '!src/application/ports/**',
+    '!src/domain/skill/skill-match.ts',
     '!src/bootstrap/start-stdio.ts',
   ],
   coverageDirectory: 'coverage',
@@ -35,9 +37,14 @@ export default {
       functions: 90,
       branches: 85,
     },
-    // Critical code carries a stricter bar: parsing untrusted manifests,
-    // containing paths, and deciding skill identities. The router threshold is
-    // added with the router: Jest fails when a path matches no file.
+    // Critical code carries a stricter bar: ranking, parsing untrusted
+    // manifests, containing paths, and deciding skill identities.
+    './src/router/': {
+      statements: 95,
+      lines: 95,
+      functions: 95,
+      branches: 90,
+    },
     './src/infrastructure/manifest/': {
       statements: 95,
       lines: 95,

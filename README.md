@@ -3,9 +3,9 @@
 MCP server that discovers, ranks and retrieves agent skills so an agent loads the
 smallest sufficient context instead of an entire skill catalog.
 
-> Status: phase 3 (registry). Skills are discovered, validated and indexed from
-> global and project roots. The MCP server answers the `initialize` handshake
-> but exposes no routing tools yet: ranking arrives in phase 4.
+> Status: phase 4 (router). Skills are discovered, indexed and ranked with
+> explanations. The MCP server answers the `initialize` handshake but does not
+> expose the routing tools yet: that is phase 6.
 
 ## Requirements
 
@@ -47,6 +47,26 @@ wins and the shadowed copy is reported.
 
 A broken skill never fails the scan. It is reported as a diagnostic, and the
 remaining skills stay usable.
+
+## Ranking
+
+`createSkillRouter` takes a query and returns a short, ordered list of skills,
+each one carrying the reasons it was selected:
+
+```json
+{
+  "id": "global:angular",
+  "score": 0.66,
+  "scope": "global",
+  "reasons": ["phase matched implementation", "framework matched angular"]
+}
+```
+
+Ranking is deterministic and does no I/O beyond asking the repository for the
+indexed skills, so it can be tested without a filesystem. See
+[docs/ranking.md](docs/ranking.md) for the signals, the scoring formula, the
+departures from the original plan and the known limits — including that the
+weights are still an uncalibrated starting point.
 
 ## Architecture
 

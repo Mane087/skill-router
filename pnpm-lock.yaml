@@ -11,6 +11,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: 1.30.0
         version: 1.30.0(supports-color@8.1.1)(zod@4.6.5)
+      picomatch:
+        specifier: 4.0.7
+        version: 4.0.7
       yaml:
         specifier: 2.9.1
         version: 2.9.1
@@ -27,6 +30,9 @@ importers:
       '@types/node':
         specifier: 24.13.4
         version: 24.13.4
+      '@types/picomatch':
+        specifier: 4.0.3
+        version: 4.0.3
       eslint:
         specifier: 10.10.0
         version: 10.10.0(supports-color@8.1.1)
@@ -566,6 +572,9 @@ packages:
 
   '@types/node@24.13.4':
     resolution: {integrity: sha512-YJ7EqCstVTzIr0fMr7qul/977en+pQHrfmuKIo6Zr9i75Be21dr3MovcfvGtyvi2HAUrRerWps5sMO9I7WaxDw==}
+
+  '@types/picomatch@4.0.3':
+    resolution: {integrity: sha512-iG0T6+nYJ9FAPmx9SsUlnwcq1ZVRuCXcVEvWnntoPlrOpwtSTKNDC9uVAxTsC3PUvJ+99n4RpAcNgBbHX3JSnQ==}
 
   '@types/stack-utils@2.0.3':
     resolution: {integrity: sha512-9aEbYZ3TbYMznPdcdr3SmIrLXwC/AKZXQeCf9Pgao5CKb8CyHuEX5jzWPTkvregvhRJHcpRO6BFoGW9ycaOkYw==}
@@ -2745,6 +2754,8 @@ snapshots:
   '@types/node@24.13.4':
     dependencies:
       undici-types: 7.18.2
+
+  '@types/picomatch@4.0.3': {}
 
   '@types/stack-utils@2.0.3': {}
 
