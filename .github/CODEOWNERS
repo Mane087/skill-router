@@ -1,0 +1,7 @@
+# Every change is reviewed by the maintainer.
+*       @Mane087
+
+# Security-sensitive areas: path containment, manifest parsing and CI.
+/src/infrastructure/filesystem/   @Mane087
+/src/infrastructure/manifest/     @Mane087
+/.github/                         @Mane087

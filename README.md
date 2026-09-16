@@ -118,6 +118,17 @@ The router never imports the MCP SDK and the MCP adapter never implements rankin
 These boundaries are enforced by `no-restricted-imports` rules in `eslint.config.js`,
 so a violation fails lint rather than relying on code review.
 
+## Security
+
+Skills are data this server reads, never code it runs: no `eval`, no plugins,
+no shell, no network. Paths are contained within their roots and symbolic links
+are refused by default.
+
+It does **not** solve prompt injection. A skill is text an agent will read and
+may act on, and the server cannot tell guidance from an instruction. Treat a
+skill directory like a dependency and review what you install.
+[SECURITY.md](SECURITY.md) documents the full trust model, including the limits.
+
 ## License
 
-MIT
+MIT, see [LICENSE](LICENSE).
