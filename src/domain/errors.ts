@@ -21,6 +21,16 @@ export class UnsafePathError extends SkillRouterError {
   readonly code = 'UNSAFE_PATH'
 }
 
+/** A skill that was asked for by identity but is not in the registry. */
+export class SkillNotFoundError extends SkillRouterError {
+  readonly code = 'SKILL_NOT_FOUND'
+}
+
+/** A reference that the skill does not provide. */
+export class ReferenceNotFoundError extends SkillRouterError {
+  readonly code = 'REFERENCE_NOT_FOUND'
+}
+
 /**
  * Two skills resolved to the same scope-qualified identity.
  *
@@ -29,4 +39,9 @@ export class UnsafePathError extends SkillRouterError {
  */
 export class DuplicateSkillError extends SkillRouterError {
   readonly code = 'DUPLICATE_SKILL'
+}
+
+/** Configuration that cannot be used to start the server. */
+export class InvalidConfigError extends SkillRouterError {
+  readonly code = 'INVALID_CONFIG'
 }

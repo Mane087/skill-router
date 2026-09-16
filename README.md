@@ -3,9 +3,8 @@
 MCP server that discovers, ranks and retrieves agent skills so an agent loads the
 smallest sufficient context instead of an entire skill catalog.
 
-> Status: phase 5 (evaluation). Ranking is measured against a dataset with a
-> regression baseline. The MCP server answers the `initialize` handshake but
-> does not expose the routing tools yet: that is phase 6.
+> Status: phase 6 (MCP adapter). The server exposes the three operations over
+> stdio and has been driven end to end by a real client.
 
 ## Requirements
 
@@ -22,6 +21,40 @@ pnpm test
 pnpm eval
 pnpm build
 ```
+
+## Connecting an agent
+
+The server speaks MCP over stdio. For Claude Code, add it to `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "skill-router": {
+      "command": "node",
+      "args": ["/path/to/skill-router-mcp/dist/bootstrap/start-stdio.js"],
+      "env": { "SKILL_ROUTER_CONFIG": "/path/to/skill-router.config.yaml" }
+    }
+  }
+}
+```
+
+Three tools are exposed, meant to be used in that order:
+
+| Tool                   | Returns                                               |
+| ---------------------- | ----------------------------------------------------- |
+| `skills_search`        | A ranked shortlist with the reason for each selection |
+| `skills_get`           | One skill's full content and the references it offers |
+| `skills_get_reference` | One reference document of a skill                     |
+
+That order is the point: the agent narrows from a task to a shortlist, then to
+one skill, then to one reference, instead of loading a catalog.
+
+The plan names these `skills.search` and so on. They are registered with
+underscores because tool names reaching the Anthropic API must match
+`^[a-zA-Z0-9_-]{1,64}$`, which a dot does not.
+
+Configuration is optional; `skill-router.config.example.yaml` documents every
+setting and its default.
 
 ## Skills
 

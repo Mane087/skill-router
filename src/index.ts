@@ -45,3 +45,26 @@ export { createSkillRouter } from './router/skill-router.js'
 export type { SkillRouter, SkillRouterOptions } from './router/skill-router.js'
 export { DEFAULT_RANKING_WEIGHTS } from './router/scoring/weights.js'
 export type { RankingWeights } from './router/scoring/weights.js'
+
+export { createContainer } from './bootstrap/container.js'
+export type { Container, ContainerOptions } from './bootstrap/container.js'
+export { createSearchSkills } from './application/search-skills.js'
+export type {
+  SearchSkills,
+  SearchSkillsInput,
+  SearchSkillsResult,
+  SkillMatchView,
+} from './application/search-skills.js'
+export { createGetSkill } from './application/get-skill.js'
+export type { GetSkill, GetSkillInput, GetSkillResult } from './application/get-skill.js'
+export { createGetSkillReference } from './application/get-skill-reference.js'
+export type {
+  GetSkillReference,
+  GetSkillReferenceInput,
+  GetSkillReferenceResult,
+} from './application/get-skill-reference.js'
+export type { SkillContentReader } from './application/ports/skill-content-reader.js'
+export { DEFAULT_CONFIG, parseConfig } from './infrastructure/config/config-schema.js'
+export type { SkillRouterConfig } from './infrastructure/config/config-schema.js'
+export { CONFIG_FILENAME, loadConfig } from './infrastructure/config/config-loader.js'
+export { InvalidConfigError, ReferenceNotFoundError, SkillNotFoundError } from './domain/errors.js'

@@ -1,0 +1,37 @@
+# Copy to skill-router.config.yaml, or point SKILL_ROUTER_CONFIG at it.
+# Every field is optional: the defaults shown here are what the server uses
+# when no configuration file exists at all.
+version: 1
+
+roots:
+  # Scanned as `<root>/<skill-name>/SKILL.md`. The directory name must match
+  # the manifest name. A leading ~ is expanded; project roots are resolved
+  # relative to the working directory.
+  global:
+    - '~/.agent-skills'
+  project:
+    - '.skills'
+
+search:
+  defaultLimit: 5
+  # Never raised above the built-in cap of 10.
+  maxLimit: 10
+
+security:
+  maxReferenceSizeKb: 512
+  maxSkills: 500
+  # Refusing links is what mitigates the check-then-use gap in path
+  # resolution. Turn it on only for roots you fully control.
+  followSymlinks: false
+
+ranking:
+  # Starting values, not calibrated. See docs/evaluation.md before changing
+  # them, and re-run `pnpm eval` afterwards.
+  weights:
+    phase: 30
+    framework: 25
+    intent: 20
+    file: 15
+    language: 10
+    tag: 10
+    related: 5
