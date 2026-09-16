@@ -1,17 +1,4 @@
-/**
- * Base class for every expected failure in the domain.
- *
- * Adapters map `code` to a transport-level error, so callers never have to
- * match on message text.
- */
-export abstract class SkillRouterError extends Error {
-  abstract readonly code: string
-
-  constructor(message: string) {
-    super(message)
-    this.name = new.target.name
-  }
-}
+import { SkillRouterError } from '../errors.js'
 
 export class InvalidSkillIdError extends SkillRouterError {
   readonly code = 'INVALID_SKILL_ID'

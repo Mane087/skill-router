@@ -21,6 +21,8 @@ export default {
     'src/**/*.ts',
     '!src/**/*.d.ts',
     '!src/index.ts',
+    // Ports are type-only contracts: they compile to an empty module.
+    '!src/application/ports/**',
     '!src/bootstrap/start-stdio.ts',
   ],
   coverageDirectory: 'coverage',
@@ -33,10 +35,22 @@ export default {
       functions: 90,
       branches: 85,
     },
-    // Parsing untrusted manifests is critical code and carries a stricter bar.
-    // Thresholds for router/** and infrastructure/filesystem/** are added in
-    // the phase that creates them: Jest fails when a path matches no file.
+    // Critical code carries a stricter bar: parsing untrusted manifests,
+    // containing paths, and deciding skill identities. The router threshold is
+    // added with the router: Jest fails when a path matches no file.
     './src/infrastructure/manifest/': {
+      statements: 95,
+      lines: 95,
+      functions: 95,
+      branches: 90,
+    },
+    './src/infrastructure/filesystem/': {
+      statements: 95,
+      lines: 95,
+      functions: 95,
+      branches: 90,
+    },
+    './src/infrastructure/registry/': {
       statements: 95,
       lines: 95,
       functions: 95,
