@@ -1,6 +1,6 @@
 {
   "name": "skill-router-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MCP server that discovers, ranks and retrieves agent skills with deterministic, explainable routing.",
   "license": "MIT",
   "type": "module",
