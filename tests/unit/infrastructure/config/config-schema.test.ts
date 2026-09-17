@@ -6,9 +6,52 @@ describe('parseConfig', () => {
     expect(parseConfig({})).toEqual(DEFAULT_CONFIG)
   })
 
-  it('defaults to a global and a project root', () => {
-    expect(DEFAULT_CONFIG.roots.global).toEqual(['~/.agent-skills'])
-    expect(DEFAULT_CONFIG.roots.project).toEqual(['.skills'])
+  it('defaults to the directories the agents themselves document', () => {
+    expect(DEFAULT_CONFIG.roots.global.map((root) => root.path)).toEqual([
+      '~/.claude/skills',
+      '~/.claude/plugins/cache/*/*/*/skills',
+      '~/.codex/skills',
+      '~/.config/opencode/skills',
+      '~/.agents/skills',
+    ])
+    expect(DEFAULT_CONFIG.roots.project.map((root) => root.path)).toEqual([
+      '.claude/skills',
+      '.codex/skills',
+      '.opencode/skills',
+      '.agents/skills',
+      '.skills',
+    ])
+  })
+
+  it('marks a default root as assumed, so its absence stays quiet', () => {
+    expect(DEFAULT_CONFIG.roots.global.every((root) => !root.required)).toBe(true)
+    expect(DEFAULT_CONFIG.roots.project.every((root) => !root.required)).toBe(true)
+  })
+
+  it('marks a declared root as required, so its absence is reported', () => {
+    const config = parseConfig({ roots: { global: ['~/.my-skills'] } })
+
+    expect(config.roots.global).toEqual([{ path: '~/.my-skills', required: true }])
+  })
+
+  it('keeps an empty list rather than falling back to the defaults', () => {
+    const config = parseConfig({ roots: { global: [] } })
+
+    expect(config.roots.global).toEqual([])
+    expect(config.roots.project).toEqual(DEFAULT_CONFIG.roots.project)
+  })
+
+  it('accepts a whole path segment as a wildcard', () => {
+    const config = parseConfig({ roots: { global: ['~/catalogs/*/skills'] } })
+
+    expect(config.roots.global).toEqual([{ path: '~/catalogs/*/skills', required: true }])
+  })
+
+  it.each([
+    ['a wildcard inside a segment', 'skill*'],
+    ['a recursive wildcard', '~/catalogs/**/skills'],
+  ])('rejects %s, which the expansion does not implement', (_label, root) => {
+    expect(() => parseConfig({ roots: { global: [root] } })).toThrow(InvalidConfigError)
   })
 
   it('refuses to follow symlinks by default', () => {
@@ -18,7 +61,7 @@ describe('parseConfig', () => {
   it('overrides only what the file declares', () => {
     const config = parseConfig({ roots: { project: ['.my-skills'] } })
 
-    expect(config.roots.project).toEqual(['.my-skills'])
+    expect(config.roots.project).toEqual([{ path: '.my-skills', required: true }])
     expect(config.roots.global).toEqual(DEFAULT_CONFIG.roots.global)
     expect(config.security).toEqual(DEFAULT_CONFIG.security)
   })

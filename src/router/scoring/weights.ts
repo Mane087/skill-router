@@ -15,5 +15,6 @@ export const DEFAULT_RANKING_WEIGHTS: RankingWeights = {
   file: 15,
   language: 10,
   tag: 10,
+  description: 15,
   related: 5,
 }

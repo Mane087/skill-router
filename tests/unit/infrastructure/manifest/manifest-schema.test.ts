@@ -1,4 +1,7 @@
-import { parseSkillManifest } from '../../../../src/infrastructure/manifest/manifest-schema.js'
+import {
+  findUnknownManifestFields,
+  parseSkillManifest,
+} from '../../../../src/infrastructure/manifest/manifest-schema.js'
 import { InvalidManifestError } from '../../../../src/domain/skill/errors.js'
 
 const MINIMAL = { name: 'angular', description: 'Angular framework practices.' }
@@ -113,10 +116,30 @@ describe('parseSkillManifest validation', () => {
     expect(() => parseSkillManifest(input)).toThrow(InvalidManifestError)
   })
 
-  it('rejects unknown top-level fields, which would otherwise be silently ignored', () => {
-    expect(() => parseSkillManifest({ ...MINIMAL, framework: 'angular' })).toThrow(
-      InvalidManifestError,
-    )
+  it('ignores unknown top-level fields instead of rejecting the skill', () => {
+    const manifest = parseSkillManifest({
+      ...MINIMAL,
+      'allowed-tools': ['Read'],
+      license: 'MIT',
+      metadata: { author: 'someone' },
+    })
+
+    expect(manifest.name).toBe('angular')
+    expect(manifest).not.toHaveProperty('license')
+  })
+
+  it('names the unknown top-level fields so the scan can report them', () => {
+    expect(
+      findUnknownManifestFields({ ...MINIMAL, license: 'MIT', 'allowed-tools': ['Read'] }),
+    ).toEqual(['allowed-tools', 'license'])
+  })
+
+  it('names no unknown field for a manifest that declares only known ones', () => {
+    expect(findUnknownManifestFields({ ...MINIMAL, tags: ['angular'] })).toEqual([])
+  })
+
+  it('names no unknown field for input that is not a mapping', () => {
+    expect(findUnknownManifestFields('not a manifest')).toEqual([])
   })
 
   it('rejects unknown fields inside excludes', () => {

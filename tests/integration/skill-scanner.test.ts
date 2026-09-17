@@ -6,7 +6,7 @@ import { canonicalizeRoot } from '../../src/infrastructure/filesystem/safe-path.
 import { scanSkillRoot } from '../../src/infrastructure/registry/skill-scanner.js'
 import { formatSkillId } from '../../src/domain/skill/skill-id.js'
 
-const POLICY = { followSymlinks: false }
+const POLICY = { followSymlinks: false, linksMayLeaveRoot: false }
 const LIMITS = { maxSkills: 100 }
 
 let workspace: string
@@ -166,5 +166,38 @@ describe('scanSkillRoot diagnostics', () => {
     await expect(
       scanSkillRoot(join(workspace, 'absent-root'), 'global', POLICY, LIMITS),
     ).rejects.toThrow()
+  })
+})
+
+describe('scanSkillRoot with foreign frontmatter', () => {
+  it('keeps a skill whose frontmatter carries fields written by other tools', async () => {
+    const root = await makeRoot({
+      angular: manifest('angular', 'allowed-tools:\n  - Read\nlicense: MIT\n'),
+    })
+
+    const result = await scanSkillRoot(root, 'global', POLICY, LIMITS)
+
+    expect(result.skills.map((entry) => formatSkillId(entry.skill.id))).toEqual(['global:angular'])
+  })
+
+  it('reports the fields it ignored, so a misspelling is still visible', async () => {
+    const root = await makeRoot({ angular: manifest('angular', 'framework: angular\n') })
+
+    const result = await scanSkillRoot(root, 'global', POLICY, LIMITS)
+
+    expect(result.diagnostics).toEqual([
+      {
+        path: join(root, 'angular', 'SKILL.md'),
+        reason: 'Ignored unknown frontmatter fields: framework.',
+      },
+    ])
+  })
+
+  it('reports nothing for a manifest that declares only known fields', async () => {
+    const root = await makeRoot({ angular: manifest('angular', 'tags: [angular]\n') })
+
+    const result = await scanSkillRoot(root, 'global', POLICY, LIMITS)
+
+    expect(result.diagnostics).toEqual([])
   })
 })

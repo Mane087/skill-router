@@ -118,4 +118,24 @@ export default tseslint.config(
     extends: [tseslint.configs.disableTypeChecked],
     rules: { '@typescript-eslint/explicit-function-return-type': 'off' },
   },
+
+  // Plain JavaScript on purpose: these run beside a released binary on a
+  // runner with no install step, so they cannot be TypeScript and cannot
+  // import anything. Globals are listed rather than pulled from a package for
+  // the same reason.
+  {
+    files: ['scripts/**/*.mjs'],
+    extends: [tseslint.configs.disableTypeChecked],
+    languageOptions: {
+      globals: {
+        console: 'readonly',
+        process: 'readonly',
+        setTimeout: 'readonly',
+      },
+    },
+    rules: {
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      'no-console': 'off',
+    },
+  },
 )

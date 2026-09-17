@@ -8,16 +8,33 @@ import { evaluateDataset, summarize } from './runner/evaluate.js'
 import { parseDataset } from './runner/dataset-schema.js'
 import { findRegressions, formatCases, formatSummary } from './runner/report.js'
 import type { CaseOutcome, DatasetReport } from './runner/evaluate.js'
+import type { SkillRouter } from '../src/router/skill-router.js'
 import type { EvaluationReport } from './runner/report.js'
 
 const ROOT = dirname(fileURLToPath(import.meta.url))
-const DATASETS = ['frontend', 'backend', 'generic']
+
+/**
+ * Each dataset names the catalog it is measured against.
+ *
+ * `skills` carries the full metadata the manifest supports. `skills-descriptions`
+ * carries `name` and `description` and nothing else, which is what every skill
+ * in the two catalogs Phase 12 measured actually looks like. Keeping them apart
+ * keeps each number attributable: mixing them would let a metadata-rich skill
+ * answer a case meant to measure retrieval from prose.
+ */
+const DATASETS = [
+  { name: 'frontend', catalog: 'skills' },
+  { name: 'backend', catalog: 'skills' },
+  { name: 'generic', catalog: 'skills' },
+  { name: 'descriptions', catalog: 'skills-descriptions' },
+] as const
+
 const BASELINE = join(ROOT, 'baseline.json')
 
-async function loadReport(): Promise<EvaluationReport> {
+async function buildRouter(catalog: string): Promise<SkillRouter> {
   const registry = await buildSkillRegistry({
-    roots: { global: [join(ROOT, 'skills')], project: [] },
-    policy: { followSymlinks: false },
+    roots: { global: [{ path: join(ROOT, catalog), required: true }], project: [] },
+    policy: { followSymlinks: false, linksMayLeaveRoot: false },
     limits: { maxSkills: 200 },
   })
 
@@ -29,10 +46,21 @@ async function loadReport(): Promise<EvaluationReport> {
     )
   }
 
-  const router = createSkillRouter(registry.repository)
+  return createSkillRouter(registry.repository)
+}
+
+async function loadReport(): Promise<EvaluationReport> {
+  const routers = new Map<string, SkillRouter>()
   const datasets: DatasetReport[] = []
 
-  for (const name of DATASETS) {
+  for (const { name, catalog } of DATASETS) {
+    let router = routers.get(catalog)
+
+    if (router === undefined) {
+      router = await buildRouter(catalog)
+      routers.set(catalog, router)
+    }
+
     const source = join(ROOT, 'datasets', `${name}.json`)
     const parsed: unknown = JSON.parse(await readFile(source, 'utf8'))
 

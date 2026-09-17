@@ -1,0 +1,103 @@
+{
+  "name": "descriptions",
+  "cases": [
+    {
+      "id": "plan-authentication-redesign",
+      "task": "Implement authentication redesign",
+      "phase": "planning",
+      "expected": ["writing-plans"],
+      "notExpected": ["architecture-diagrams", "using-git-worktrees"]
+    },
+    {
+      "id": "vague-idea",
+      "task": "Turn this vague idea into a written design document",
+      "phase": "planning",
+      "expected": ["brainstorming"],
+      "notExpected": ["insecure-defaults", "systematic-debugging"]
+    },
+    {
+      "id": "diagram-data-flow",
+      "task": "Produce a sequence diagram of the data flow between the services",
+      "phase": "planning",
+      "expected": ["architecture-diagrams"],
+      "notExpected": ["systematic-debugging", "requesting-code-review"]
+    },
+    {
+      "id": "execute-plan",
+      "task": "Carry out the written plan step by step with review checkpoints",
+      "phase": "implementation",
+      "expected": ["executing-plans"],
+      "notExpected": ["insecure-defaults", "architecture-diagrams"]
+    },
+    {
+      "id": "debug-failing-test",
+      "task": "A test started failing after my last change and I do not know why",
+      "phase": "testing",
+      "expected": ["systematic-debugging"],
+      "notExpected": ["using-git-worktrees", "architecture-diagrams"]
+    },
+    {
+      "id": "write-failing-test",
+      "task": "Write the failing test before implementing the feature",
+      "phase": "testing",
+      "expected": ["test-driven-development"],
+      "notExpected": ["architecture-diagrams", "insecure-defaults"]
+    },
+    {
+      "id": "parallel-tasks",
+      "task": "Run several independent tasks that share no state",
+      "phase": "implementation",
+      "expected": ["dispatching-parallel-agents"],
+      "notExpected": ["insecure-defaults", "receiving-code-review"]
+    },
+    {
+      "id": "isolate-workspace",
+      "task": "Isolate this feature work from the current workspace",
+      "phase": "implementation",
+      "expected": ["using-git-worktrees"],
+      "notExpected": ["insecure-defaults", "architecture-diagrams"]
+    },
+    {
+      "id": "author-a-skill",
+      "task": "Create a new skill and verify that it works",
+      "phase": "implementation",
+      "expected": ["writing-skills"],
+      "notExpected": ["insecure-defaults", "using-git-worktrees"]
+    },
+    {
+      "id": "request-review",
+      "task": "The change is complete and needs review before merging",
+      "phase": "review",
+      "expected": ["requesting-code-review"],
+      "notExpected": ["architecture-diagrams", "systematic-debugging"]
+    },
+    {
+      "id": "receive-review",
+      "task": "Evaluate each comment of the review feedback on its technical merits",
+      "phase": "review",
+      "expected": ["receiving-code-review"],
+      "notExpected": ["architecture-diagrams", "using-git-worktrees"]
+    },
+    {
+      "id": "before-commit",
+      "task": "Check the work is really passing before committing and opening a pull request",
+      "phase": "review",
+      "expected": ["verification-before-completion"],
+      "notExpected": ["architecture-diagrams", "insecure-defaults"]
+    },
+    {
+      "id": "integrate-branch",
+      "task": "The implementation is done and the branch has to be rebased and integrated",
+      "phase": "review",
+      "expected": ["finishing-a-development-branch"],
+      "notExpected": ["architecture-diagrams", "insecure-defaults"]
+    },
+    {
+      "id": "hardcoded-secrets",
+      "task": "Look for hardcoded secrets and permissive security settings",
+      "phase": "review",
+      "expected": ["insecure-defaults"],
+      "notExpected": ["architecture-diagrams", "using-git-worktrees"]
+    }
+  ]
+}

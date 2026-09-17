@@ -28,8 +28,26 @@ export interface SkillRouter {
  * about the topic. A relation says only that some other skill vouches for this
  * one. Both reposition a skill that is already relevant; neither makes one
  * relevant.
+ *
+ * The description is a subject signal too, but a weak one, so it is admitted
+ * under a threshold rather than on any match at all. See below.
  */
 const SUBJECT_SIGNALS: readonly RankingSignal[] = ['framework', 'language', 'intent', 'file', 'tag']
+
+/**
+ * How much of a query's vocabulary a description must cover to admit a skill
+ * on its own.
+ *
+ * Every other subject signal is a term an author chose deliberately, so one
+ * match is evidence. A description is prose: a single shared word is a
+ * coincidence, and admitting on it retrieves the whole catalogue.
+ *
+ * A quarter is measured, not chosen. Against the four datasets, a third loses
+ * a case entirely and a fifth costs ten points of precision@5 and raises the
+ * forbidden rate; a quarter improves every metric but the false positive rate,
+ * which it raises by under two points. See docs/evaluation.md.
+ */
+const DESCRIPTION_SUBJECT_THRESHOLD = 1 / 4
 
 interface Candidate {
   readonly skill: Skill
@@ -98,7 +116,13 @@ function selectCandidates(
 }
 
 function matchesSubject(signals: readonly SignalScore[]): boolean {
-  return signals.some((score) => score.ratio > 0 && SUBJECT_SIGNALS.includes(score.signal))
+  return signals.some((score) => {
+    if (score.signal === 'description') {
+      return score.ratio >= DESCRIPTION_SUBJECT_THRESHOLD
+    }
+
+    return score.ratio > 0 && SUBJECT_SIGNALS.includes(score.signal)
+  })
 }
 
 function toMatch(

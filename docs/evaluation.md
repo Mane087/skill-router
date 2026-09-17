@@ -13,12 +13,23 @@ two answer different questions and should fail for different reasons.
 
 ## What it runs
 
-`evals/skills/` holds a catalog of 15 skills written as real `SKILL.md` files,
-so a run exercises the whole pipeline: scanner, registry and router. The catalog
-must load with no diagnostics or the run fails.
+Two catalogs, written as real `SKILL.md` files, so a run exercises the whole
+pipeline: scanner, registry and router. A catalog must load with no diagnostics
+or the run fails.
 
-`evals/datasets/` holds 14 cases across three files. Each case states the query
-and two lists:
+| Catalog                      | Skills | What it represents                       |
+| ---------------------------- | ------ | ---------------------------------------- |
+| `evals/skills/`              | 15     | Manifests using the full metadata schema |
+| `evals/skills-descriptions/` | 14     | `name` and `description` only            |
+
+The second catalog exists because that is what skills written outside this
+project look like. Phase 12 measured the router against two real catalogs and
+every skill in them declared nothing but a name and a description. Keeping the
+two apart keeps each number attributable: mixed together, a metadata-rich skill
+could answer a case meant to measure retrieval from prose.
+
+`evals/datasets/` holds 28 cases across four files, each naming the catalog it
+runs against. Each case states the query and two lists:
 
 - `expected` — skills that should come back. Membership is graded, not order.
 - `notExpected` — skills that must never come back for this task.
@@ -49,7 +60,7 @@ be looked at deliberately rather than slipping through.
 
 There is **no absolute gate**. The plan sets `Recall@3 >= 90%` as an orienting
 target and is explicit that it must not become a gate until the dataset is
-representative. Fourteen cases is not representative.
+representative. Twenty-eight cases is not representative.
 
 ## What the first run found
 
@@ -80,9 +91,47 @@ phase alone: no word in either task relates to those skills' tags or intents.
 **Those hits were accidents, and the recall that measured them was measuring
 luck.**
 
+## What Phase 12 found
+
+Running the server against two real catalogs — 21 skills, none of them written
+for this project — returned **nothing at all, for every query**. Two independent
+causes:
+
+1. Two skills were rejected outright, because their frontmatter carried
+   `allowed-tools`, `license` and `metadata`, which the strict schema refused.
+2. The other nineteen loaded and could never be retrieved. They declare only
+   `name` and `description`, and the admission rule asked for a framework, a
+   language, an intent, a file pattern or a tag. The one field every skill
+   actually fills was not read by the router at all.
+
+Both are fixed: unknown fields are reported instead of rejected (ADR-0012), and
+the description is a ranking signal held to a threshold (ADR-0011). The
+`descriptions` dataset exists so this cannot regress silently.
+
+Adding the signal did not cost the metadata datasets anything. `frontend` and
+`backend` summaries are unchanged; `generic` improved, with Recall@3 going from
+80.0% to 93.3% and NDCG@5 from 83.5% to 94.1% because `plan-redesign` finally
+returns all three expected skills instead of one.
+
+### Choosing the threshold
+
+A description is prose, so a single shared word is not evidence the way a shared
+tag is. The admission threshold was measured across all four datasets rather
+than chosen:
+
+| Threshold | Recall@1 | Precision@5 | NDCG@5 | False pos. | Forbidden |
+| --------- | -------- | ----------- | ------ | ---------- | --------- |
+| 1/3       | 78.6%    | 66.9%       | 93.3%  | 29.5%      | 17.9%     |
+| **1/4**   | 82.1%    | 68.7%       | 96.9%  | 31.3%      | 17.9%     |
+| 1/5       | 82.1%    | 58.3%       | 96.9%  | 41.7%      | 21.4%     |
+
+A third loses `debug-failing-test` entirely, by one word. A fifth costs ten
+points of precision@5 and starts surfacing barred skills. A quarter improves
+every metric but the false positive rate, which it raises by 1.8 points.
+
 ## Known weaknesses, measured not guessed
 
-Two causes account for most of the remaining 39% false positive rate:
+Three causes account for most of the remaining false positive rate:
 
 1. **A shared language admits almost anything.** `playwright`, `react` and
    `angular` are retrieved for backend tasks purely because they declare
@@ -93,6 +142,13 @@ Two causes account for most of the remaining 39% false positive rate:
    schema and write a migration" because it declares the tag `design`. Matching
    is on whole words with no notion of sense.
 
-Neither is fixed here. With fourteen cases, tuning against them would be fitting
-the weights to this dataset rather than to the problem. They are recorded so the
-next change is aimed at a measured cause instead of a guess.
+3. **Description terms are unweighted.** Every word counts the same, so a word
+   half the catalog uses counts as much as one only a single skill uses. On the
+   real catalog, "Implement authentication redesign" ties five skills that all
+   matched nothing but "implement", and the tie is then broken by identity,
+   which is alphabetical order. This is what term weighting — BM25's `idf` — is
+   for, and it is the plan's own next step.
+
+None is fixed here. With twenty-eight cases, tuning against them would be
+fitting the weights to this dataset rather than to the problem. They are
+recorded so the next change is aimed at a measured cause instead of a guess.

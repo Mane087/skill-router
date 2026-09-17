@@ -1,11 +1,17 @@
 import { parseFrontmatter } from './frontmatter-parser.js'
-import { parseSkillManifest } from './manifest-schema.js'
+import { findUnknownManifestFields, parseSkillManifest } from './manifest-schema.js'
 import type { SkillManifest } from '../../domain/skill/skill-manifest.js'
 
 export interface LoadedSkillDocument {
   readonly manifest: SkillManifest
   /** Markdown after the frontmatter, returned to the agent by `skills.get`. */
   readonly body: string
+  /**
+   * Frontmatter fields the manifest schema dropped. Carried out of here so the
+   * scan can report them: a field nobody reads is worth a line on stderr, and a
+   * misspelled one is worth more than that.
+   */
+  readonly unknownFields: readonly string[]
 }
 
 /**
@@ -19,5 +25,9 @@ export interface LoadedSkillDocument {
 export function loadSkillDocument(content: string): LoadedSkillDocument {
   const { frontmatter, body } = parseFrontmatter(content)
 
-  return { manifest: parseSkillManifest(frontmatter), body }
+  return {
+    manifest: parseSkillManifest(frontmatter),
+    body,
+    unknownFields: findUnknownManifestFields(frontmatter),
+  }
 }

@@ -50,6 +50,13 @@ once at startup, since a root may itself be a link.
 
 By default the server refuses to follow symbolic links at all.
 
+Turning `security.followSymlinks` on lets a link in a **global** root reach a
+catalog kept elsewhere, which is how a shared skills directory is usually laid
+out. A project root never follows a link out of itself whatever the option
+says: it arrives with a checkout, so a cloned repository cannot link a skill at
+a file outside the workspace. A reference inside a skill stays contained under
+either setting (ADR-0013).
+
 A skill's location comes from the registry, never from its manifest, so a skill
 cannot point at content outside its own directory.
 

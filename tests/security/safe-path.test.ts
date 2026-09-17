@@ -8,8 +8,9 @@ import {
 } from '../../src/infrastructure/filesystem/safe-path.js'
 import { UnsafePathError } from '../../src/domain/errors.js'
 
-const FOLLOW = { followSymlinks: true }
-const NO_FOLLOW = { followSymlinks: false }
+const FOLLOW = { followSymlinks: true, linksMayLeaveRoot: false }
+const NO_FOLLOW = { followSymlinks: false, linksMayLeaveRoot: false }
+const FOLLOW_OUTSIDE = { followSymlinks: true, linksMayLeaveRoot: true }
 
 let workspace: string
 let root: string
@@ -102,6 +103,41 @@ describe('resolveWithinRoot symlink handling', () => {
   it('still resolves regular files when the policy forbids symlinks', async () => {
     await expect(resolveWithinRoot(root, 'inside.md', NO_FOLLOW)).resolves.toBe(
       join(root, 'inside.md'),
+    )
+  })
+})
+
+describe('resolveWithinRoot with links allowed out of the root', () => {
+  it('follows a symlink whose target sits outside the root', async () => {
+    await expect(resolveWithinRoot(root, 'escaping-link.md', FOLLOW_OUTSIDE)).resolves.toBe(
+      join(outside, 'secret.md'),
+    )
+  })
+
+  it('follows a path reached through a symlinked directory outside the root', async () => {
+    await expect(resolveWithinRoot(root, 'escaping-dir/secret.md', FOLLOW_OUTSIDE)).resolves.toBe(
+      join(outside, 'secret.md'),
+    )
+  })
+
+  it.each([
+    ['a parent traversal', '../outside/secret.md'],
+    ['a traversal through a nested directory', 'nested/../../outside/secret.md'],
+    ['an absolute path', '/etc/passwd'],
+  ])(
+    'still rejects %s, which is written in the request rather than on disk',
+    async (_label, candidate) => {
+      await expect(resolveWithinRoot(root, candidate, FOLLOW_OUTSIDE)).rejects.toThrow(
+        UnsafePathError,
+      )
+    },
+  )
+
+  it('is inert while symlinks are refused', async () => {
+    const policy = { followSymlinks: false, linksMayLeaveRoot: true }
+
+    await expect(resolveWithinRoot(root, 'escaping-link.md', policy)).rejects.toThrow(
+      UnsafePathError,
     )
   })
 })

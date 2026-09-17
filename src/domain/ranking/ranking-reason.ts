@@ -5,6 +5,7 @@ export const RANKING_SIGNALS = [
   'intent',
   'file',
   'tag',
+  'description',
   'related',
 ] as const
 
@@ -23,6 +24,7 @@ const SIGNAL_LABELS: Record<RankingSignal, string> = {
   intent: 'intent',
   file: 'file pattern',
   tag: 'tag',
+  description: 'description',
   related: 'related skill',
 }
 

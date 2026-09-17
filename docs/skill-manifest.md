@@ -15,21 +15,26 @@ description: Angular framework practices for implementing applications.
 Body returned to the agent once it asks for this skill.
 ```
 
+`name` and `description` are enough. Everything else sharpens the ranking, but
+a skill that declares only those two is retrievable: the description is matched
+against the task, which is how skills written for other tools work at all. Write
+it as the sentence that says _when_ to reach for the skill, not as a title.
+
 ## Fields
 
-| Field          | Required | Type             | Purpose                                                |
-| -------------- | -------- | ---------------- | ------------------------------------------------------ |
-| `name`         | yes      | string           | Identity within a scope. Lowercase kebab-case, ≤ 64.   |
-| `description`  | yes      | string           | One-line summary. ≤ 1024 characters after normalizing. |
-| `version`      | no       | positive integer | Manifest revision. Defaults to `1`.                    |
-| `tags`         | no       | list of strings  | Free-form keywords. Medium ranking weight.             |
-| `phases`       | no       | list of phases   | Lifecycle fit. Highest ranking weight.                 |
-| `intents`      | no       | list of strings  | Concrete actions, e.g. `create-component`.             |
-| `languages`    | no       | list of strings  | Programming languages.                                 |
-| `frameworks`   | no       | list of strings  | Frameworks, e.g. `angular`.                            |
-| `filePatterns` | no       | list of globs    | Matched against the files named in the query.          |
-| `related`      | no       | list of strings  | Sibling skills. Contributes a positive boost.          |
-| `excludes`     | no       | mapping          | Negative metadata. See below.                          |
+| Field          | Required | Type             | Purpose                                              |
+| -------------- | -------- | ---------------- | ---------------------------------------------------- |
+| `name`         | yes      | string           | Identity within a scope. Lowercase kebab-case, ≤ 64. |
+| `description`  | yes      | string           | When the skill applies. ≤ 1024 characters. Ranked.   |
+| `version`      | no       | positive integer | Manifest revision. Defaults to `1`.                  |
+| `tags`         | no       | list of strings  | Free-form keywords. Medium ranking weight.           |
+| `phases`       | no       | list of phases   | Lifecycle fit. Highest ranking weight.               |
+| `intents`      | no       | list of strings  | Concrete actions, e.g. `create-component`.           |
+| `languages`    | no       | list of strings  | Programming languages.                               |
+| `frameworks`   | no       | list of strings  | Frameworks, e.g. `angular`.                          |
+| `filePatterns` | no       | list of globs    | Matched against the files named in the query.        |
+| `related`      | no       | list of strings  | Sibling skills. Contributes a positive boost.        |
+| `excludes`     | no       | mapping          | Negative metadata. See below.                        |
 
 `phases` accepts only `planning`, `implementation`, `testing` and `review`. The
 set is closed on purpose: phase carries the highest weight in the scoring model,
@@ -88,6 +93,24 @@ Manifests come from user-controlled repositories, so every input is bounded.
 | Nesting depth         | 8               |
 | YAML alias expansions | 100             |
 
+## Unknown fields
+
+A `SKILL.md` is often shared with other tools, which write their own frontmatter
+into it: `allowed-tools`, `license` and `metadata` all appear in real
+catalogs. Fields this schema does not define are dropped and named in a scan
+diagnostic, rather than failing the skill over a key the router never reads.
+
+The diagnostic is what keeps a misspelling visible. `framework` instead of
+`frameworks` still drops a ranking signal, and the scan says so on stderr:
+
+```text
+skill-router: /path/angular/SKILL.md: Ignored unknown frontmatter fields: framework.
+```
+
+`excludes` is the exception and stays strict: nothing outside this project
+writes it, so an unknown key inside it is a mistake and not somebody else's
+metadata.
+
 ## Rejected documents
 
 Validation fails loudly rather than guessing. `InvalidManifestError` carries an
@@ -99,9 +122,7 @@ A document is rejected when it:
 - has no frontmatter block, or one that is not closed;
 - contains malformed YAML, or duplicate keys;
 - has frontmatter that is not a mapping;
-- declares an unknown field, at the top level or inside `excludes` — a
-  misspelled `framework` instead of `frameworks` would otherwise drop a ranking
-  signal with no visible failure;
+- declares an unknown field inside `excludes`;
 - uses a YAML tag the core schema cannot resolve, or one that produces a value
   outside JSON, such as `!!binary` (a `Buffer`) or `!!timestamp` (a `Date`);
 - contains a non-finite number, which `.inf` and `.nan` produce;

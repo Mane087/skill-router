@@ -57,7 +57,7 @@
         },
         {
           "id": "e2e-test",
-          "returned": ["playwright", "jest", "tdd", "angular", "nestjs"],
+          "returned": ["playwright", "tdd", "jest", "angular", "nestjs"],
           "recallAt1": 1,
           "recallAt3": 1,
           "recallAt5": 1,
@@ -113,7 +113,7 @@
         },
         {
           "id": "backend-unit-tests",
-          "returned": ["jest", "nestjs", "angular", "playwright", "react"],
+          "returned": ["jest", "nestjs", "tdd", "playwright", "angular"],
           "recallAt1": 0.5,
           "recallAt3": 1,
           "recallAt5": 1,
@@ -121,7 +121,7 @@
           "precisionAt5": 0.4,
           "reciprocalRank": 1,
           "ndcgAt5": 1,
-          "forbidden": 2,
+          "forbidden": 1,
           "falsePositiveRate": 0.6
         },
         {
@@ -156,14 +156,14 @@
       "outcomes": [
         {
           "id": "plan-redesign",
-          "returned": ["architecture-planning"],
+          "returned": ["ask-questions", "architecture-planning", "tdd"],
           "recallAt1": 0.3333333333333333,
-          "recallAt3": 0.3333333333333333,
-          "recallAt5": 0.3333333333333333,
+          "recallAt3": 1,
+          "recallAt5": 1,
           "precisionAt3": 1,
           "precisionAt5": 1,
           "reciprocalRank": 1,
-          "ndcgAt5": 0.46927872602275644,
+          "ndcgAt5": 1,
           "forbidden": 0,
           "falsePositiveRate": 0
         },
@@ -223,27 +223,241 @@
       "summary": {
         "cases": 5,
         "recallAt1": 0.7333333333333333,
-        "recallAt3": 0.8,
-        "recallAt5": 0.8,
+        "recallAt3": 0.9333333333333332,
+        "recallAt5": 0.9333333333333332,
         "precisionAt3": 0.7,
         "precisionAt5": 0.7,
         "mrr": 1,
-        "ndcgAt5": 0.8346393630113782,
+        "ndcgAt5": 0.940783617806827,
         "falsePositiveRate": 0.3,
+        "forbiddenRate": 0
+      }
+    },
+    {
+      "name": "descriptions",
+      "outcomes": [
+        {
+          "id": "plan-authentication-redesign",
+          "returned": [
+            "finishing-a-development-branch",
+            "insecure-defaults",
+            "test-driven-development",
+            "writing-plans"
+          ],
+          "recallAt1": 0,
+          "recallAt3": 0,
+          "recallAt5": 1,
+          "precisionAt3": 0,
+          "precisionAt5": 0.25,
+          "reciprocalRank": 0.25,
+          "ndcgAt5": 0.43067655807339306,
+          "forbidden": 0,
+          "falsePositiveRate": 0.75
+        },
+        {
+          "id": "vague-idea",
+          "returned": ["brainstorming"],
+          "recallAt1": 1,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 1,
+          "precisionAt5": 1,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 0,
+          "falsePositiveRate": 0
+        },
+        {
+          "id": "diagram-data-flow",
+          "returned": ["architecture-diagrams"],
+          "recallAt1": 1,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 1,
+          "precisionAt5": 1,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 0,
+          "falsePositiveRate": 0
+        },
+        {
+          "id": "execute-plan",
+          "returned": ["executing-plans", "writing-plans"],
+          "recallAt1": 1,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 0.5,
+          "precisionAt5": 0.5,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 0,
+          "falsePositiveRate": 0.5
+        },
+        {
+          "id": "debug-failing-test",
+          "returned": ["systematic-debugging", "test-driven-development"],
+          "recallAt1": 1,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 0.5,
+          "precisionAt5": 0.5,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 0,
+          "falsePositiveRate": 0.5
+        },
+        {
+          "id": "write-failing-test",
+          "returned": [
+            "test-driven-development",
+            "systematic-debugging",
+            "using-git-worktrees",
+            "writing-plans"
+          ],
+          "recallAt1": 1,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 0.3333333333333333,
+          "precisionAt5": 0.25,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 0,
+          "falsePositiveRate": 0.75
+        },
+        {
+          "id": "parallel-tasks",
+          "returned": ["dispatching-parallel-agents"],
+          "recallAt1": 1,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 1,
+          "precisionAt5": 1,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 0,
+          "falsePositiveRate": 0
+        },
+        {
+          "id": "isolate-workspace",
+          "returned": ["using-git-worktrees"],
+          "recallAt1": 1,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 1,
+          "precisionAt5": 1,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 0,
+          "falsePositiveRate": 0
+        },
+        {
+          "id": "author-a-skill",
+          "returned": ["writing-skills"],
+          "recallAt1": 1,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 1,
+          "precisionAt5": 1,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 0,
+          "falsePositiveRate": 0
+        },
+        {
+          "id": "request-review",
+          "returned": [
+            "requesting-code-review",
+            "receiving-code-review",
+            "using-git-worktrees",
+            "verification-before-completion"
+          ],
+          "recallAt1": 1,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 0.3333333333333333,
+          "precisionAt5": 0.25,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 0,
+          "falsePositiveRate": 0.75
+        },
+        {
+          "id": "receive-review",
+          "returned": ["receiving-code-review"],
+          "recallAt1": 1,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 1,
+          "precisionAt5": 1,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 0,
+          "falsePositiveRate": 0
+        },
+        {
+          "id": "before-commit",
+          "returned": ["verification-before-completion"],
+          "recallAt1": 1,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 1,
+          "precisionAt5": 1,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 0,
+          "falsePositiveRate": 0
+        },
+        {
+          "id": "integrate-branch",
+          "returned": ["finishing-a-development-branch"],
+          "recallAt1": 1,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 1,
+          "precisionAt5": 1,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 0,
+          "falsePositiveRate": 0
+        },
+        {
+          "id": "hardcoded-secrets",
+          "returned": ["insecure-defaults"],
+          "recallAt1": 1,
+          "recallAt3": 1,
+          "recallAt5": 1,
+          "precisionAt3": 1,
+          "precisionAt5": 1,
+          "reciprocalRank": 1,
+          "ndcgAt5": 1,
+          "forbidden": 0,
+          "falsePositiveRate": 0
+        }
+      ],
+      "summary": {
+        "cases": 14,
+        "recallAt1": 0.9285714285714286,
+        "recallAt3": 0.9285714285714286,
+        "recallAt5": 1,
+        "precisionAt3": 0.761904761904762,
+        "precisionAt5": 0.7678571428571429,
+        "mrr": 0.9464285714285714,
+        "ndcgAt5": 0.9593340398623853,
+        "falsePositiveRate": 0.23214285714285715,
         "forbiddenRate": 0
       }
     }
   ],
   "summary": {
-    "cases": 14,
-    "recallAt1": 0.7142857142857143,
-    "recallAt3": 0.9285714285714286,
-    "recallAt5": 0.9285714285714286,
-    "precisionAt3": 0.7023809523809524,
-    "precisionAt5": 0.605952380952381,
-    "mrr": 1,
-    "ndcgAt5": 0.9409426296469208,
-    "falsePositiveRate": 0.39404761904761904,
-    "forbiddenRate": 0.35714285714285715
+    "cases": 28,
+    "recallAt1": 0.8214285714285714,
+    "recallAt3": 0.9523809523809523,
+    "recallAt5": 0.988095238095238,
+    "precisionAt3": 0.7321428571428571,
+    "precisionAt5": 0.6869047619047619,
+    "mrr": 0.9732142857142857,
+    "ndcgAt5": 0.9690926659681259,
+    "falsePositiveRate": 0.31309523809523804,
+    "forbiddenRate": 0.17857142857142858
   }
 }

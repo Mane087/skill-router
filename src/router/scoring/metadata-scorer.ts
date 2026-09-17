@@ -1,6 +1,7 @@
 import picomatch from 'picomatch'
 
 import { extractQueryWords, matchesAllWords } from '../query-words.js'
+import { scoreDescription } from './description-scorer.js'
 import { scoreLexical } from './lexical-scorer.js'
 
 import type { SignalScore } from '../../domain/ranking/score.js'
@@ -29,6 +30,7 @@ export function scoreMetadata(
     scoreIntent(manifest.intents, words, weights.intent),
     scoreFiles(manifest.filePatterns, query.files, weights.file),
     scoreLexical(skill, query, weights.tag),
+    scoreDescription(skill, query, weights.description),
   ]
 }
 
