@@ -9,7 +9,40 @@ smallest sufficient context instead of an entire skill catalog.
 > catalogs written by other people — which is what ADR-0011 and ADR-0012 came
 > from. Every pull request runs CodeQL and a dependency review.
 
+## Install
+
+Each release carries a self-contained binary per platform. Nothing else is
+needed to run it — no Node, no package manager:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Mane087/skill-router/main/install.sh | sh
+```
+
+```powershell
+irm https://raw.githubusercontent.com/Mane087/skill-router/main/install.ps1 | iex
+```
+
+Both resolve the latest release, verify the download against the published
+`SHA256SUMS`, and put `skill-router-mcp` on your PATH. Set
+`SKILL_ROUTER_VERSION` to pin a tag and `SKILL_ROUTER_INSTALL_DIR` to choose
+where it lands.
+
+| Platform | Architectures |
+| -------- | ------------- |
+| Linux    | x64, arm64    |
+| macOS    | x64, arm64    |
+| Windows  | x64           |
+
+Every binary is exercised over real stdio on the system it was built for before
+the release gets it, and carries a build provenance attestation you can check:
+
+```bash
+gh attestation verify skill-router-mcp-darwin-arm64 --repo Mane087/skill-router
+```
+
 ## Requirements
+
+Only to work on the project; the released binary needs neither.
 
 - Node.js 24 (see `.nvmrc`)
 - pnpm 11
@@ -37,13 +70,16 @@ The server speaks MCP over stdio. For Claude Code, add it to `.mcp.json`:
 {
   "mcpServers": {
     "skill-router": {
-      "command": "node",
-      "args": ["/path/to/skill-router-mcp/dist/bootstrap/start-stdio.js"],
+      "command": "skill-router-mcp",
       "env": { "SKILL_ROUTER_CONFIG": "/path/to/skill-router.config.yaml" }
     }
   }
 }
 ```
+
+`SKILL_ROUTER_CONFIG` is optional: without it the server scans the directories
+the agents themselves use. From a checkout rather than an installed binary, the
+command is `node` with `args: ["/path/to/dist/bootstrap/start-stdio.js"]`.
 
 Three tools are exposed, meant to be used in that order:
 

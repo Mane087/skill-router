@@ -1,0 +1,194 @@
+name: Release
+
+# Publishing the release is the trigger, so the notes are written and the tag
+# exists before anything is built against it.
+on:
+  release:
+    types: [published]
+
+permissions: {}
+
+env:
+  BINARY_NAME: skill-router-mcp
+
+jobs:
+  build:
+    name: Build binaries
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          persist-credentials: false
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      # A tag that disagrees with the manifest would ship a binary reporting a
+      # version nobody can find, so it stops the release instead.
+      - name: Check the tag matches the package version
+        run: |
+          tag="${{ github.event.release.tag_name }}"
+          version="$(node -p "require('./package.json').version")"
+
+          if [ "$tag" != "v$version" ]; then
+            echo "Release tag $tag does not match package version $version." >&2
+            exit 1
+          fi
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Compiled by tsc first, so the binary carries the same JavaScript the
+      # published package would, rather than a second transpilation of the
+      # TypeScript by another toolchain.
+      - name: Build
+        run: pnpm build
+
+      - name: Compile a binary for every target
+        run: |
+          set -eu
+          mkdir -p artifacts
+
+          compile() {
+            target="$1"
+            output="$2"
+
+            echo "::group::$output"
+            bun build --compile --sourcemap \
+              --target="$target" \
+              --outfile="artifacts/$output" \
+              dist/bootstrap/start-stdio.js
+            echo "::endgroup::"
+          }
+
+          compile bun-linux-x64     "$BINARY_NAME-linux-x64"
+          compile bun-linux-arm64   "$BINARY_NAME-linux-arm64"
+          compile bun-darwin-x64    "$BINARY_NAME-darwin-x64"
+          compile bun-darwin-arm64  "$BINARY_NAME-darwin-arm64"
+          compile bun-windows-x64   "$BINARY_NAME-windows-x64.exe"
+
+          ls -l artifacts
+
+      # Written here rather than after the upload, so the sums cover exactly
+      # the files that were built and tested.
+      - name: Record checksums
+        working-directory: artifacts
+        run: |
+          sha256sum "$BINARY_NAME"-* > SHA256SUMS
+          cat SHA256SUMS
+
+      - name: Upload binaries
+        uses: actions/upload-artifact@v7
+        with:
+          name: binaries
+          path: artifacts/
+          retention-days: 1
+          if-no-files-found: error
+
+  smoke:
+    name: Smoke test ${{ matrix.asset }}
+    needs: build
+    timeout-minutes: 15
+    permissions:
+      contents: read
+
+    # Every target is exercised on the system it was built for. Cross
+    # compilation is what makes the build a single job, and this is the price
+    # of it: the binary is only proven once something runs it.
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            asset: skill-router-mcp-linux-x64
+          - runner: ubuntu-24.04-arm
+            asset: skill-router-mcp-linux-arm64
+          # macos-13 is the last x64 image. When it is retired this target
+          # loses its test rather than its build.
+          - runner: macos-13
+            asset: skill-router-mcp-darwin-x64
+          - runner: macos-latest
+            asset: skill-router-mcp-darwin-arm64
+          - runner: windows-latest
+            asset: skill-router-mcp-windows-x64.exe
+
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.release.tag_name }}
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: Download binaries
+        uses: actions/download-artifact@v7
+        with:
+          name: binaries
+          path: artifacts
+
+      # The artifact format does not carry the executable bit.
+      - name: Make the binary executable
+        if: runner.os != 'Windows'
+        run: chmod +x "artifacts/${{ matrix.asset }}"
+
+      # Node runs the client; the binary under test carries its own runtime.
+      - name: Speak MCP to the binary
+        run: node scripts/smoke-test.mjs "${{ github.workspace }}/artifacts/${{ matrix.asset }}"
+
+  publish:
+    name: Attach binaries to the release
+    needs: smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      # Both are what signing the provenance attestation needs.
+      id-token: write
+      attestations: write
+
+    steps:
+      - name: Download binaries
+        uses: actions/download-artifact@v7
+        with:
+          name: binaries
+          path: artifacts
+
+      # Records which workflow, commit and runner produced each binary, so a
+      # download can be traced back to this repository rather than trusted.
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: artifacts/skill-router-mcp-*
+
+      - name: Upload the assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          set -eu
+          gh release upload "$TAG" artifacts/* \
+            --repo "${{ github.repository }}" \
+            --clobber
