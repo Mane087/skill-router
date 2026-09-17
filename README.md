@@ -141,7 +141,8 @@ so a violation fails lint rather than relying on code review.
 
 Skills are data this server reads, never code it runs: no `eval`, no plugins,
 no shell, no network. Paths are contained within their roots and symbolic links
-are refused by default.
+are refused by default. Allowing them lets a global root reach a catalog that
+is linked rather than copied; a project root stays contained either way.
 
 It does **not** solve prompt injection. A skill is text an agent will read and
 may act on, and the server cannot tell guidance from an instruction. Treat a

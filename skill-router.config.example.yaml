@@ -22,6 +22,11 @@ security:
   maxSkills: 500
   # Refusing links is what mitigates the check-then-use gap in path
   # resolution. Turn it on only for roots you fully control.
+  #
+  # When on, a link in a global root may point at a catalog kept elsewhere,
+  # which is how a shared skills directory is normally laid out. A project
+  # root never follows a link out of itself, whatever this says: it arrives
+  # with a checkout. A reference inside a skill stays contained either way.
   followSymlinks: false
 
 ranking:

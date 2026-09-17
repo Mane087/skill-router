@@ -1,4 +1,4 @@
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
+import { mkdtemp, mkdir, rm, symlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -6,7 +6,7 @@ import { buildSkillRegistry } from '../../src/infrastructure/registry/registry-b
 import { canonicalizeRoot } from '../../src/infrastructure/filesystem/safe-path.js'
 import { createSkillId, formatSkillId } from '../../src/domain/skill/skill-id.js'
 
-const POLICY = { followSymlinks: false }
+const POLICY = { followSymlinks: false, linksMayLeaveRoot: false }
 const LIMITS = { maxSkills: 100 }
 
 let workspace: string
@@ -80,6 +80,59 @@ describe('buildSkillRegistry', () => {
     const registry = await build([globalRoot], [])
 
     expect(registry.entries[0]?.directory).toBe(join(globalRoot, 'angular'))
+  })
+})
+
+describe('buildSkillRegistry with linked skills', () => {
+  const FOLLOW = { followSymlinks: true, linksMayLeaveRoot: false }
+
+  async function makeLinkedRoot(name: string): Promise<{ root: string; target: string }> {
+    const target = join(await makeRoot([name]), name)
+    counter += 1
+    const root = join(workspace, `linked-root-${String(counter)}`)
+
+    await mkdir(root, { recursive: true })
+    await symlink(target, join(root, name))
+
+    return { root, target }
+  }
+
+  it('loads a skill linked out of a global root when links are followed', async () => {
+    const { root, target } = await makeLinkedRoot('angular')
+
+    const registry = await buildSkillRegistry({
+      roots: { global: [root], project: [] },
+      policy: FOLLOW,
+      limits: LIMITS,
+    })
+
+    expect((await registry.repository.list()).map((skill) => formatSkillId(skill.id))).toEqual([
+      'global:angular',
+    ])
+    // Anchored at the target, so its references resolve there and stay there.
+    expect(registry.entries[0]?.directory).toBe(target)
+  })
+
+  it('refuses the same link in a project root, which arrives with a checkout', async () => {
+    const { root } = await makeLinkedRoot('angular')
+
+    const registry = await buildSkillRegistry({
+      roots: { global: [], project: [root] },
+      policy: FOLLOW,
+      limits: LIMITS,
+    })
+
+    await expect(registry.repository.list()).resolves.toHaveLength(0)
+    expect(registry.diagnostics[0]?.reason).toMatch(/outside the skill root/i)
+  })
+
+  it('refuses a linked skill in a global root while symlinks are off', async () => {
+    const { root } = await makeLinkedRoot('angular')
+
+    const registry = await build([root], [])
+
+    await expect(registry.repository.list()).resolves.toHaveLength(0)
+    expect(registry.diagnostics[0]?.reason).toMatch(/symbolic link/i)
   })
 })
 

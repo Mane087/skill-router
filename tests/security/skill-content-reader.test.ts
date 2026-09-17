@@ -13,7 +13,7 @@ import {
 import type { ScannedSkill } from '../../src/infrastructure/registry/skill-scanner.js'
 
 const NUL = String.fromCharCode(0)
-const POLICY = { followSymlinks: false }
+const POLICY = { followSymlinks: false, linksMayLeaveRoot: false }
 const LIMITS = { maxReferenceBytes: 512 * 1024 }
 
 let workspace: string

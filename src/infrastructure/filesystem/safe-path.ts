@@ -10,6 +10,17 @@ export interface PathPolicy {
    * that stays inside the root. The plan's default configuration sets it false.
    */
   readonly followSymlinks: boolean
+
+  /**
+   * When true, a followed link may resolve outside the root.
+   *
+   * Only a global root is ever given this, and only when `followSymlinks` is
+   * on. A shared catalog is normally linked into place rather than copied, so
+   * without it the option refuses exactly the layout it exists to support. A
+   * project root never gets it: it is checked out with the repository, and its
+   * links are as untrusted as its code (ADR-0007, ADR-0013).
+   */
+  readonly linksMayLeaveRoot: boolean
 }
 
 const NULL_BYTE = String.fromCharCode(0)
@@ -39,7 +50,9 @@ export async function canonicalizeRoot(root: string): Promise<string> {
  *
  * Containment is checked twice: once on the lexical join, which rejects `..`
  * before the filesystem is touched, and once on the real path, which is what
- * catches a symlink pointing outside.
+ * catches a symlink pointing outside. Only the second check can be waived, and
+ * only by `linksMayLeaveRoot`: a traversal written in the request itself is
+ * refused under every policy.
  *
  * Known limitation: this is a check-then-use sequence. A link swapped between
  * the check and the subsequent read would defeat it. Closing that gap needs
@@ -76,7 +89,9 @@ export async function resolveWithinRoot(
     throw new UnsafePathError(`Path is reached through a symbolic link: ${relativePath}`)
   }
 
-  if (!isInside(real, canonicalRoot)) {
+  // The lexical check above already rejected `..`, so only a link can land
+  // here, and only a policy that accepts links can waive the containment.
+  if (!isInside(real, canonicalRoot) && !policy.linksMayLeaveRoot) {
     throw new UnsafePathError(`Path resolves outside the skill root: ${relativePath}`)
   }
 

@@ -1,5 +1,5 @@
 import { lstat, readdir, readFile } from 'node:fs/promises'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 
 import { canonicalizeRoot, resolveWithinRoot } from '../filesystem/safe-path.js'
 import { createSkill } from '../../domain/skill/skill.js'
@@ -17,7 +17,14 @@ export interface ScanLimits {
 
 export interface ScannedSkill {
   readonly skill: Skill
-  /** Canonical directory holding the skill, used later to resolve references. */
+  /**
+   * Canonical directory holding the skill, used later to resolve references.
+   *
+   * Taken from the resolved `SKILL.md`, not from the root and the directory
+   * name, so a skill reached through a link is anchored at the link's target.
+   * Everything inside it is then contained there, and a skill still cannot
+   * point outside itself (ADR-0005).
+   */
   readonly directory: string
 }
 
@@ -132,7 +139,7 @@ async function loadScannedSkill(
     return {
       scanned: {
         skill: createSkill(scope, manifest),
-        directory: join(canonicalRoot, directoryName),
+        directory: dirname(file),
       },
       diagnostics:
         unknownFields.length === 0

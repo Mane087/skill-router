@@ -18,6 +18,7 @@ because the reasoning is the point.
 | [0010](0010-directory-name-is-identity.md)      | A skill's directory name is its name          |
 | [0011](0011-rank-on-the-description.md)         | The description is a ranking signal           |
 | [0012](0012-unknown-frontmatter-is-reported.md) | Unknown frontmatter is reported, not rejected |
+| [0013](0013-linked-global-skills.md)            | A global root may follow a link out of itself |
 
 ## A note on timing
 

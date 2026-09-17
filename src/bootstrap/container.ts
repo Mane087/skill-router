@@ -37,7 +37,10 @@ export interface Container {
 export async function createContainer(options: ContainerOptions = {}): Promise<Container> {
   const cwd = options.cwd ?? process.cwd()
   const config = await loadConfig(options.configPath, cwd)
-  const policy = { followSymlinks: config.security.followSymlinks }
+  // The base policy is the strict one. Only the registry widens it, and only
+  // for a global root; the reader keeps it, so a reference can never resolve
+  // outside the skill that offers it (ADR-0013).
+  const policy = { followSymlinks: config.security.followSymlinks, linksMayLeaveRoot: false }
 
   const registry = await buildSkillRegistry({
     roots: {

@@ -6,7 +6,7 @@ import { canonicalizeRoot } from '../../src/infrastructure/filesystem/safe-path.
 import { scanSkillRoot } from '../../src/infrastructure/registry/skill-scanner.js'
 import { formatSkillId } from '../../src/domain/skill/skill-id.js'
 
-const POLICY = { followSymlinks: false }
+const POLICY = { followSymlinks: false, linksMayLeaveRoot: false }
 const LIMITS = { maxSkills: 100 }
 
 let workspace: string

@@ -94,10 +94,23 @@ async function scanRoot(
   options: RegistryOptions,
 ): Promise<Awaited<ReturnType<typeof scanSkillRoot>> | RegistryDiagnostic> {
   try {
-    return await scanSkillRoot(root, scope, options.policy, options.limits)
+    return await scanSkillRoot(root, scope, policyForScope(scope, options.policy), options.limits)
   } catch (error) {
     return { path: root, reason: describeError(error) }
   }
+}
+
+/**
+ * Widens the path policy for a global root, and only for a global root.
+ *
+ * `followSymlinks` exists for the operator who keeps one catalog and links it
+ * into place; refusing a link whose target sits elsewhere would deny that
+ * layout entirely. A project root is a different kind of directory: it arrives
+ * with a checkout, so its links stay contained whatever the option says
+ * (ADR-0007, ADR-0013).
+ */
+function policyForScope(scope: SkillScope, policy: PathPolicy): PathPolicy {
+  return scope === 'global' ? { ...policy, linksMayLeaveRoot: policy.followSymlinks } : policy
 }
 
 function describeError(error: unknown): string {
