@@ -33,7 +33,7 @@ const BASELINE = join(ROOT, 'baseline.json')
 
 async function buildRouter(catalog: string): Promise<SkillRouter> {
   const registry = await buildSkillRegistry({
-    roots: { global: [join(ROOT, catalog)], project: [] },
+    roots: { global: [{ path: join(ROOT, catalog), required: true }], project: [] },
     policy: { followSymlinks: false, linksMayLeaveRoot: false },
     limits: { maxSkills: 200 },
   })

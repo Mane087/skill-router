@@ -7,9 +7,27 @@ roots:
   # Scanned as `<root>/<skill-name>/SKILL.md`. The directory name must match
   # the manifest name. A leading ~ is expanded; project roots are resolved
   # relative to the working directory.
+  #
+  # These defaults are the directories the agents themselves document, so the
+  # server finds an existing machine's skills with no configuration at all.
+  # Declaring either list replaces it: what you write is the whole list, and a
+  # root you write that does not exist is reported, while one of these being
+  # absent is not.
+  #
+  # `*` may stand for a whole path segment, which is how a plugin cache is
+  # reached: the version is part of the path. Not `**`, and not a partial
+  # match inside a segment.
   global:
-    - '~/.agent-skills'
+    - '~/.claude/skills'
+    - '~/.claude/plugins/cache/*/*/*/skills'
+    - '~/.codex/skills'
+    - '~/.config/opencode/skills'
+    - '~/.agents/skills'
   project:
+    - '.claude/skills'
+    - '.codex/skills'
+    - '.opencode/skills'
+    - '.agents/skills'
     - '.skills'
 
 search:

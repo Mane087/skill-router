@@ -47,7 +47,10 @@ export async function createContainer(options: ContainerOptions = {}): Promise<C
       global: [...config.roots.global],
       // Project roots are written relative to the workspace, not to wherever
       // the server process happens to have been started.
-      project: config.roots.project.map((root) => absolute(root, cwd)),
+      project: config.roots.project.map((spec) => ({
+        ...spec,
+        path: absolute(spec.path, cwd),
+      })),
     },
     policy,
     limits: { maxSkills: config.security.maxSkills },

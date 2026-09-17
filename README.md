@@ -86,6 +86,22 @@ identity, so `global:angular` and `project:angular` coexist and a project skill
 can never silently shadow a global one. Within a single scope the first root
 wins and the shadowed copy is reported.
 
+With no configuration at all, the roots are the directories the agents
+themselves document, so an existing machine works on first run:
+
+```text
+global   ~/.claude/skills   ~/.claude/plugins/cache/*/*/*/skills
+         ~/.codex/skills    ~/.config/opencode/skills   ~/.agents/skills
+project  .claude/skills     .codex/skills   .opencode/skills
+         .agents/skills     .skills
+```
+
+One of these being absent is not reported — most machines have most of them
+absent. A root you write yourself is, because a path you typed and a path this
+project guessed are not the same kind of claim. A root may use `*` as a whole
+path segment, which is how the plugin cache is reached, since the version sits
+in the path. Several names for one directory are scanned once (ADR-0014).
+
 A broken skill never fails the scan. It is reported as a diagnostic, and the
 remaining skills stay usable.
 

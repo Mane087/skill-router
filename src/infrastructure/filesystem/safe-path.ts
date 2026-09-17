@@ -35,7 +35,7 @@ const NULL_BYTE = String.fromCharCode(0)
  * @throws {UnsafePathError} when the root cannot be resolved.
  */
 export async function canonicalizeRoot(root: string): Promise<string> {
-  const expanded = expandHome(root)
+  const expanded = expandHomePath(root)
 
   try {
     return await realpath(expanded)
@@ -111,7 +111,14 @@ function isInside(candidate: string, root: string): boolean {
   return candidate === root || candidate.startsWith(root + sep)
 }
 
-function expandHome(value: string): string {
+/**
+ * Expands a leading `~` to the home directory, touching nothing on disk.
+ *
+ * Exported because a root can be walked before it is canonicalized: a
+ * configured root may be a pattern, and expanding it needs the same `~` rule
+ * without requiring the pattern itself to exist.
+ */
+export function expandHomePath(value: string): string {
   if (value === '~') {
     return homedir()
   }

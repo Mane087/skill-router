@@ -19,6 +19,7 @@ because the reasoning is the point.
 | [0011](0011-rank-on-the-description.md)         | The description is a ranking signal           |
 | [0012](0012-unknown-frontmatter-is-reported.md) | Unknown frontmatter is reported, not rejected |
 | [0013](0013-linked-global-skills.md)            | A global root may follow a link out of itself |
+| [0014](0014-known-skill-roots.md)               | Default roots are the agents' own directories |
 
 ## A note on timing
 

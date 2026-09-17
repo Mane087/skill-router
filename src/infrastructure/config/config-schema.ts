@@ -3,13 +3,42 @@ import { z } from 'zod'
 import { DEFAULT_RANKING_WEIGHTS } from '../../router/scoring/weights.js'
 import { DEFAULT_SEARCH_LIMIT, MAX_SEARCH_LIMIT } from '../../domain/skill/skill-query.js'
 import { InvalidConfigError } from '../../domain/errors.js'
+import { describeInvalidRootPattern } from '../filesystem/skill-root.js'
 import type { RankingWeights } from '../../router/scoring/weights.js'
+import type { SkillRootSpec } from '../filesystem/skill-root.js'
+
+/**
+ * Where each agent keeps skills, scanned in this order.
+ *
+ * These are the conventions the tools themselves document, not a layout this
+ * project invented: a server with no configuration should find the skills a
+ * machine already has (ADR-0014). Order decides a tie, since the first root of
+ * a scope wins a duplicate name.
+ *
+ * The plugin pattern matches `<marketplace>/<plugin>/<version>/skills`, which
+ * is why it is a pattern: the version sits in the path.
+ */
+export const DEFAULT_GLOBAL_ROOTS: readonly string[] = [
+  '~/.claude/skills',
+  '~/.claude/plugins/cache/*/*/*/skills',
+  '~/.codex/skills',
+  '~/.config/opencode/skills',
+  '~/.agents/skills',
+]
+
+export const DEFAULT_PROJECT_ROOTS: readonly string[] = [
+  '.claude/skills',
+  '.codex/skills',
+  '.opencode/skills',
+  '.agents/skills',
+  '.skills',
+]
 
 export interface SkillRouterConfig {
   readonly version: number
   readonly roots: {
-    readonly global: readonly string[]
-    readonly project: readonly string[]
+    readonly global: readonly SkillRootSpec[]
+    readonly project: readonly SkillRootSpec[]
   }
   readonly search: {
     readonly defaultLimit: number
@@ -28,8 +57,8 @@ export interface SkillRouterConfig {
 export const DEFAULT_CONFIG: SkillRouterConfig = {
   version: 1,
   roots: {
-    global: ['~/.agent-skills'],
-    project: ['.skills'],
+    global: assumedRoots(DEFAULT_GLOBAL_ROOTS),
+    project: assumedRoots(DEFAULT_PROJECT_ROOTS),
   },
   search: {
     defaultLimit: DEFAULT_SEARCH_LIMIT,
@@ -49,6 +78,29 @@ export const DEFAULT_CONFIG: SkillRouterConfig = {
 
 const positiveInt = z.int().positive()
 
+/** Roots this project assumes, which stay silent when they are not there. */
+function assumedRoots(paths: readonly string[]): readonly SkillRootSpec[] {
+  return paths.map((path) => ({ path, required: false }))
+}
+
+/** Roots the operator wrote, whose absence is worth reporting. */
+function configuredRoots(paths: readonly string[]): readonly SkillRootSpec[] {
+  return paths.map((path) => ({ path, required: true }))
+}
+
+const rootPath = z
+  .string()
+  .min(1)
+  .superRefine((value, ctx) => {
+    const problem = describeInvalidRootPattern(value)
+
+    if (problem !== null) {
+      ctx.addIssue({ code: 'custom', message: problem })
+    }
+  })
+
+const rootList = z.array(rootPath)
+
 const weightsSchema = z
   .strictObject({
     phase: z.int().nonnegative().default(DEFAULT_RANKING_WEIGHTS.phase),
@@ -65,15 +117,25 @@ const weightsSchema = z
 const configSchema = z
   .strictObject({
     version: positiveInt.default(DEFAULT_CONFIG.version),
+    // Left optional rather than defaulted, because the parsed value has to say
+    // whether a root was asked for or assumed. Writing `global: []` is a
+    // choice and is kept: it means this machine has no global skills.
     roots: z
       .strictObject({
-        global: z.array(z.string().min(1)).default([...DEFAULT_CONFIG.roots.global]),
-        project: z.array(z.string().min(1)).default([...DEFAULT_CONFIG.roots.project]),
+        global: rootList.optional(),
+        project: rootList.optional(),
       })
-      .prefault({
-        global: [...DEFAULT_CONFIG.roots.global],
-        project: [...DEFAULT_CONFIG.roots.project],
-      }),
+      .prefault({})
+      .transform((roots) => ({
+        global:
+          roots.global === undefined
+            ? assumedRoots(DEFAULT_GLOBAL_ROOTS)
+            : configuredRoots(roots.global),
+        project:
+          roots.project === undefined
+            ? assumedRoots(DEFAULT_PROJECT_ROOTS)
+            : configuredRoots(roots.project),
+      })),
     search: z
       .strictObject({
         defaultLimit: positiveInt.default(DEFAULT_CONFIG.search.defaultLimit),
