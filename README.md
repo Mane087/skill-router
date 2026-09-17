@@ -24,8 +24,8 @@ irm https://raw.githubusercontent.com/Mane087/skill-router/main/install.ps1 | ie
 
 Both resolve the latest release, verify the download against the published
 `SHA256SUMS`, and put `skill-router-mcp` on your PATH. Set
-`SKILL_ROUTER_VERSION` to pin a tag and `SKILL_ROUTER_INSTALL_DIR` to choose
-where it lands.
+`SKILL_ROUTER_VERSION` to a release tag, written exactly as the release shows
+it, and `SKILL_ROUTER_INSTALL_DIR` to choose where the binary lands.
 
 | Platform | Architectures |
 | -------- | ------------- |

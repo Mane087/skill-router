@@ -6,7 +6,8 @@
   irm https://raw.githubusercontent.com/Mane087/skill-router/main/install.ps1 | iex
 
   Environment:
-    SKILL_ROUTER_VERSION      tag to install, such as v0.1.0 (default: latest)
+    SKILL_ROUTER_VERSION      release tag to install, exactly as it appears on
+                              the release, such as 0.1.0 (default: latest)
     SKILL_ROUTER_INSTALL_DIR  where to put the binary
                               (default: %LOCALAPPDATA%\Programs\skill-router-mcp)
 #>
@@ -54,8 +55,10 @@ function Get-LatestVersion {
 
     $version = ([string]$location).Split('/')[-1]
 
-    if ($version -notmatch '^v') {
-        throw "Could not resolve the latest version; got `"$version`"."
+    # Whatever the tag is called is what the download URL needs, so this only
+    # rejects the shapes that mean the redirect did not land on a release.
+    if (-not $version -or $version -in @('latest', 'releases')) {
+        throw "Could not resolve the latest release; got `"$version`"."
     }
 
     return $version
