@@ -338,3 +338,53 @@ describe('milestone 1 scenario', () => {
     expect(names).not.toContain('nestjs')
   })
 })
+
+/**
+ * Skills written outside this project declare `name` and `description` and
+ * nothing else. Phase 12 measured the router against two real catalogues and it
+ * retrieved none of them, because the subject-match rule only ever looked at
+ * structured metadata.
+ */
+describe('skills that declare only a description', () => {
+  const RECEIVING_FEEDBACK = createSkill(
+    'global',
+    parseSkillManifest({
+      name: 'receiving-code-review',
+      description:
+        'Use when receiving code review feedback, to evaluate each comment on its technical merits.',
+    }),
+  )
+
+  const BRAINSTORMING = createSkill(
+    'global',
+    parseSkillManifest({
+      name: 'brainstorming',
+      description: 'Use when turning a vague idea into a written design document.',
+    }),
+  )
+
+  it('retrieves a skill whose description covers the task', async () => {
+    const matches = await search([RECEIVING_FEEDBACK, BRAINSTORMING], {
+      task: 'evaluate the code review feedback on my pull request',
+      phase: 'review',
+    })
+
+    expect(matches.map((match) => match.id.name)).toEqual(['receiving-code-review'])
+  })
+
+  it('explains the match by naming the description terms that matched', async () => {
+    const [match] = await search([RECEIVING_FEEDBACK], { task: 'code review feedback' })
+
+    expect(match?.reasons.map(formatRankingReason)).toContain(
+      'description matched code, feedback, review',
+    )
+  })
+
+  it('does not admit a skill whose description shares only an incidental term', async () => {
+    const matches = await search([BRAINSTORMING], {
+      task: 'migrate the postgres database schema to a new document store',
+    })
+
+    expect(matches).toEqual([])
+  })
+})

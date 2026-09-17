@@ -61,7 +61,7 @@ const excludesSchema = z
   // while this one is parsed through the schema like any other input.
   .prefault({ intents: [], frameworks: [], languages: [] })
 
-const manifestSchema = z.strictObject({
+const manifestSchema = z.object({
   name: nameSchema,
   version: z.int().positive().default(1),
   description: descriptionSchema,
@@ -80,12 +80,33 @@ const manifestSchema = z.strictObject({
   excludes: excludesSchema,
 })
 
+const KNOWN_FIELDS: ReadonlySet<string> = new Set(Object.keys(manifestSchema.shape))
+
+/**
+ * Names the top-level frontmatter fields this schema does not know.
+ *
+ * Reported as a scan diagnostic rather than thrown. Phase 12 measured two real
+ * catalogues where skills carry `allowed-tools`, `license` and `metadata`,
+ * written by other tools that share the same file. Rejecting the document would
+ * make those skills unreachable over a key the router does not even read, so
+ * the field is dropped and named instead. A misspelled `framework` still
+ * surfaces, as a line on stderr rather than as a rejection.
+ *
+ * `excludes` stays strict: nothing outside this project writes it, so an
+ * unknown key there is a mistake, not somebody else's metadata.
+ */
+export function findUnknownManifestFields(input: unknown): readonly string[] {
+  if (typeof input !== 'object' || input === null || Array.isArray(input)) {
+    return []
+  }
+
+  return Object.keys(input)
+    .filter((key) => !KNOWN_FIELDS.has(key))
+    .sort()
+}
+
 /**
  * Validates and normalizes raw frontmatter into a domain manifest.
- *
- * Unknown fields are rejected rather than ignored: a misspelled key such as
- * `framework` instead of `frameworks` would otherwise drop a ranking signal
- * without any visible failure.
  *
  * @throws {InvalidManifestError} listing every field that failed.
  */

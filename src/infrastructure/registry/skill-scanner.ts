@@ -80,17 +80,28 @@ export async function scanSkillRoot(
       continue
     }
 
-    const scanned = await loadScannedSkill(canonicalRoot, name, relativeFile, scope, policy)
+    const outcome = await loadScannedSkill(canonicalRoot, name, relativeFile, scope, policy)
 
-    if ('reason' in scanned) {
-      diagnostics.push(scanned)
-      continue
+    diagnostics.push(...outcome.diagnostics)
+
+    if (outcome.scanned !== null) {
+      skills.push(outcome.scanned)
     }
-
-    skills.push(scanned)
   }
 
   return { skills, diagnostics }
+}
+
+/**
+ * The result of loading one candidate directory.
+ *
+ * A skill and a diagnostic are not alternatives: a skill can load and still be
+ * worth reporting, which is what happens when its frontmatter carries fields
+ * this project does not define.
+ */
+interface LoadOutcome {
+  readonly scanned: ScannedSkill | null
+  readonly diagnostics: readonly SkillScanDiagnostic[]
 }
 
 async function loadScannedSkill(
@@ -99,23 +110,42 @@ async function loadScannedSkill(
   relativeFile: string,
   scope: SkillScope,
   policy: PathPolicy,
-): Promise<ScannedSkill | SkillScanDiagnostic> {
+): Promise<LoadOutcome> {
   const path = join(canonicalRoot, relativeFile)
 
   try {
     const file = await resolveWithinRoot(canonicalRoot, relativeFile, policy)
-    const { manifest } = loadSkillDocument(await readFile(file, 'utf8'))
+    const { manifest, unknownFields } = loadSkillDocument(await readFile(file, 'utf8'))
 
     if (manifest.name !== directoryName) {
       return {
-        path,
-        reason: `Manifest name "${manifest.name}" does not match its directory "${directoryName}".`,
+        scanned: null,
+        diagnostics: [
+          {
+            path,
+            reason: `Manifest name "${manifest.name}" does not match its directory "${directoryName}".`,
+          },
+        ],
       }
     }
 
-    return { skill: createSkill(scope, manifest), directory: join(canonicalRoot, directoryName) }
+    return {
+      scanned: {
+        skill: createSkill(scope, manifest),
+        directory: join(canonicalRoot, directoryName),
+      },
+      diagnostics:
+        unknownFields.length === 0
+          ? []
+          : [
+              {
+                path,
+                reason: `Ignored unknown frontmatter fields: ${unknownFields.join(', ')}.`,
+              },
+            ],
+    }
   } catch (error) {
-    return { path, reason: describeError(error) }
+    return { scanned: null, diagnostics: [{ path, reason: describeError(error) }] }
   }
 }
 

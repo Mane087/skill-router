@@ -39,6 +39,7 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.30.0",
     "picomatch": "4.0.7",
+    "stemmer": "^2.0.1",
     "yaml": "2.9.1",
     "zod": "4.6.5"
   },

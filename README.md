@@ -3,9 +3,11 @@
 MCP server that discovers, ranks and retrieves agent skills so an agent loads the
 smallest sufficient context instead of an entire skill catalog.
 
-> Status: phase 6 (MCP adapter) and phase 10 (security CI). The server exposes
-> the three operations over stdio and has been driven end to end by a real
-> client. Every pull request runs CodeQL and a dependency review.
+> Status: phase 6 (MCP adapter), phase 10 (security CI) and phase 12 (real-agent
+> integration). The server exposes the three operations over stdio, has been
+> driven end to end by a real client, and has been measured against two skill
+> catalogs written by other people — which is what ADR-0011 and ADR-0012 came
+> from. Every pull request runs CodeQL and a dependency review.
 
 ## Requirements
 
@@ -113,8 +115,10 @@ Coverage cannot tell you whether the right skills were retrieved. `pnpm eval`
 runs the router against a dataset and reports recall, precision, MRR, NDCG and —
 most importantly for this project — the false positive rate. Runs are compared
 against a stored baseline so a ranking change has to be looked at on purpose.
-See [docs/evaluation.md](docs/evaluation.md), which also records what the first
-run found and the weaknesses it measured.
+Two catalogs are measured: one using the full metadata schema, one where skills
+declare nothing but a name and a description, which is what skills written
+outside this project look like. See [docs/evaluation.md](docs/evaluation.md),
+which records what each run found and the weaknesses it measured.
 
 ## Documentation
 

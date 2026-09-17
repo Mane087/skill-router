@@ -52,6 +52,15 @@ describe('valid skill fixtures', () => {
     expect(manifest.filePatterns).toEqual(['**/*.Component.ts'])
   })
 
+  it('loads a manifest carrying fields written by other tools', async () => {
+    const { manifest, unknownFields } = loadSkillDocument(
+      await readFixture('valid', 'foreign-fields'),
+    )
+
+    expect(manifest.name).toBe('foreign-fields')
+    expect(unknownFields).toEqual(['allowed-tools', 'framework', 'license', 'metadata'])
+  })
+
   it('produces the same result on every parse of the same document', async () => {
     const content = await readFixture('valid', 'angular')
 
@@ -62,7 +71,6 @@ describe('valid skill fixtures', () => {
 describe('invalid skill fixtures', () => {
   it.each([
     'missing-frontmatter',
-    'unknown-field',
     'bad-name',
     'unknown-phase',
     'duplicate-keys',

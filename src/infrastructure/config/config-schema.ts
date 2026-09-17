@@ -57,6 +57,7 @@ const weightsSchema = z
     file: z.int().nonnegative().default(DEFAULT_RANKING_WEIGHTS.file),
     language: z.int().nonnegative().default(DEFAULT_RANKING_WEIGHTS.language),
     tag: z.int().nonnegative().default(DEFAULT_RANKING_WEIGHTS.tag),
+    description: z.int().nonnegative().default(DEFAULT_RANKING_WEIGHTS.description),
     related: z.int().nonnegative().default(DEFAULT_RANKING_WEIGHTS.related),
   })
   .prefault({ ...DEFAULT_RANKING_WEIGHTS })

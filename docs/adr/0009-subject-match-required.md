@@ -1,8 +1,12 @@
 # 9. Retrieval requires a subject match
 
-Status: accepted
+Status: accepted, amended by [ADR-0011](0011-rank-on-the-description.md)
 
 Supersedes the hard-filter design sketched in the plan's section 5.
+
+ADR-0011 adds the description to the list of subject signals, under a threshold.
+Without it this rule was unsatisfiable for any skill written outside this
+project, which is most of them.
 
 ## Context
 
