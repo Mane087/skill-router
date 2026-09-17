@@ -130,9 +130,10 @@ jobs:
             asset: skill-router-mcp-linux-x64
           - runner: ubuntu-24.04-arm
             asset: skill-router-mcp-linux-arm64
-          # macos-13 is the last x64 image. When it is retired this target
-          # loses its test rather than its build.
-          - runner: macos-13
+          # macos-13 was retired, and a job asking for it waits for a runner
+          # that no longer exists instead of failing, so x64 macOS is taken
+          # from the `-intel` labels now.
+          - runner: macos-15-intel
             asset: skill-router-mcp-darwin-x64
           - runner: macos-latest
             asset: skill-router-mcp-darwin-arm64
