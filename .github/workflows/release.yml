@@ -42,15 +42,25 @@ jobs:
 
       # A tag that disagrees with the manifest would ship a binary reporting a
       # version nobody can find, so it stops the release instead.
+      #
+      # `1.2.3` and `v1.2.3` are both ordinary conventions and neither is worth
+      # failing a release over, so only the number underneath has to agree.
+      #
+      # The tag arrives through the environment rather than interpolated into
+      # the script: it is attacker-controlled text, and a workflow that pastes
+      # it into a shell would be running whatever somebody named a tag.
       - name: Check the tag matches the package version
+        env:
+          TAG: ${{ github.event.release.tag_name }}
         run: |
-          tag="${{ github.event.release.tag_name }}"
           version="$(node -p "require('./package.json').version")"
 
-          if [ "$tag" != "v$version" ]; then
-            echo "Release tag $tag does not match package version $version." >&2
+          if [ "${TAG#v}" != "$version" ]; then
+            echo "Release tag \"$TAG\" is not version $version, which is what package.json declares." >&2
             exit 1
           fi
+
+          echo "Tag \"$TAG\" matches package version $version."
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
