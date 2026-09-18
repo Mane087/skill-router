@@ -2,6 +2,7 @@
 import { homedir } from 'node:os'
 
 import { createProcessRunner } from '../adapters/cli/command-runner.js'
+import { detectClient } from '../adapters/cli/install/client-presence.js'
 import { resolveServerCommand } from '../adapters/cli/install/server-command.js'
 import { runCli } from '../adapters/cli/run-cli.js'
 import { startStdio } from './start-stdio.js'
@@ -18,10 +19,13 @@ import { startStdio } from './start-stdio.js'
 const exitCode = await runCli(process.argv.slice(2), {
   serve: startStdio,
   run: createProcessRunner(),
+  detect: detectClient,
   environment: {
     cwd: process.cwd(),
     home: homedir(),
     configHome: process.env.XDG_CONFIG_HOME,
+    path: process.env.PATH,
+    pathExtensions: process.env.PATHEXT,
   },
   serverCommand: resolveServerCommand(import.meta.url),
   out: (line) => {

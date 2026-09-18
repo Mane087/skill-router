@@ -11,7 +11,8 @@ export interface InstallRequest {
 }
 
 export interface InstallOutcome {
-  readonly action: 'added' | 'updated' | 'unchanged' | 'planned'
+  /** `skipped` means the client is not on this machine, which is not a failure. */
+  readonly action: 'added' | 'updated' | 'unchanged' | 'planned' | 'skipped'
   /** One line for the operator, naming what changed and where. */
   readonly summary: string
 }

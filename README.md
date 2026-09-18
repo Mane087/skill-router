@@ -191,6 +191,25 @@ local server, so its file is merged directly — every other server and every
 unrelated setting is preserved, and an entry that already exists under the same
 name is refused unless `--force` is given.
 
+A client that is not on this machine is **skipped, not failed**: the command
+reports it and exits 0, so running all three on a machine that has one of them
+is a setup script rather than an error.
+
+```text
+$ skill-router-mcp install codex
+Skipped: codex is not installed on this machine. Looked for ~/.codex and for "codex" on PATH.
+```
+
+A client counts as present when its directory exists (`~/.claude`, `~/.codex`,
+`~/.opencode` or `~/.config/opencode`) or when its executable is on PATH. Either
+alone is wrong in a case that happens: a client that has never been run has no
+directory, and a process started by an editor often has a PATH that does not
+include it.
+
+A command that is wrong is still an error everywhere, whatever is installed:
+`install codex --scope project` fails on every machine, so a script cannot
+appear to work on one and quietly do nothing on another.
+
 `--dry-run` prints what would happen and changes nothing. `--name` registers
 under something other than `skill-router`.
 

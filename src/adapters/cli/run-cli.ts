@@ -3,15 +3,17 @@ import { parseArguments } from './arguments.js'
 import { CliFailureError, CliUsageError } from './errors.js'
 import { SERVER_NAME, SERVER_VERSION } from '../mcp/server-metadata.js'
 import { USAGE } from './usage.js'
+import type { ClientDetector } from './install/client-presence.js'
 import type { CommandRunner } from './command-runner.js'
 import type { InstallOutcome } from './install/install-request.js'
-import type { OpencodeEnvironment } from './install/opencode-client.js'
+import type { InstallEnvironment } from './install/environment.js'
 
 export interface CliDependencies {
   /** Starts the MCP server. Injected so the CLI can be tested without stdio. */
   readonly serve: () => Promise<void>
   readonly run: CommandRunner
-  readonly environment: OpencodeEnvironment
+  readonly detect: ClientDetector
+  readonly environment: InstallEnvironment
   readonly serverCommand: readonly string[]
   readonly out: (line: string) => void
   readonly err: (line: string) => void
@@ -90,6 +92,8 @@ function describeAction(action: InstallOutcome['action']): string {
       return 'Replaced '
     case 'unchanged':
       return 'No change: '
+    case 'skipped':
+      return 'Skipped: '
     case 'planned':
       return ''
   }

@@ -1,6 +1,6 @@
 import { installInClaude } from '../../../../src/adapters/cli/install/claude-client.js'
 import { installInCodex } from '../../../../src/adapters/cli/install/codex-client.js'
-import { CliFailureError, CliUsageError } from '../../../../src/adapters/cli/errors.js'
+import { CliFailureError } from '../../../../src/adapters/cli/errors.js'
 import type { CommandResult, CommandRunner } from '../../../../src/adapters/cli/command-runner.js'
 import type { InstallRequest } from '../../../../src/adapters/cli/install/install-request.js'
 
@@ -114,22 +114,6 @@ describe('installInCodex', () => {
       { command: 'codex', args: ['mcp', 'add', 'skill-router', '--', ...COMMAND] },
     ])
     expect(outcome.action).toBe('added')
-  })
-
-  it('refuses a project scope, which Codex does not have', async () => {
-    const { run } = recorder(OK)
-
-    await expect(installInCodex({ ...REQUEST, scope: 'project' }, run)).rejects.toBeInstanceOf(
-      CliUsageError,
-    )
-  })
-
-  it('names the file Codex actually writes, so the refusal is not a dead end', async () => {
-    const { run } = recorder(OK)
-
-    await expect(installInCodex({ ...REQUEST, scope: 'project' }, run)).rejects.toThrow(
-      /config\.toml/,
-    )
   })
 
   it('removes the existing entry first when forced', async () => {

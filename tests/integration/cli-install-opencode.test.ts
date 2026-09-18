@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import { installInOpencode } from '../../src/adapters/cli/install/opencode-client.js'
 import { CliFailureError, CliUsageError } from '../../src/adapters/cli/errors.js'
 import type { InstallRequest } from '../../src/adapters/cli/install/install-request.js'
-import type { OpencodeEnvironment } from '../../src/adapters/cli/install/opencode-client.js'
+import type { InstallEnvironment } from '../../src/adapters/cli/install/environment.js'
 
 const COMMAND = ['node', '/opt/skill-router/dist/bootstrap/main.js']
 
@@ -30,7 +30,7 @@ afterAll(async () => {
   await rm(workspace, { recursive: true, force: true })
 })
 
-async function makeEnvironment(existing?: unknown): Promise<OpencodeEnvironment> {
+async function makeEnvironment(existing?: unknown): Promise<InstallEnvironment> {
   counter += 1
   const cwd = join(workspace, `case-${String(counter)}`)
   await mkdir(cwd, { recursive: true })
@@ -42,10 +42,16 @@ async function makeEnvironment(existing?: unknown): Promise<OpencodeEnvironment>
     )
   }
 
-  return { cwd, home: join(cwd, 'home'), configHome: undefined }
+  return {
+    cwd,
+    home: join(cwd, 'home'),
+    configHome: undefined,
+    path: undefined,
+    pathExtensions: undefined,
+  }
 }
 
-function readConfig(environment: OpencodeEnvironment): Promise<string> {
+function readConfig(environment: InstallEnvironment): Promise<string> {
   return readFile(join(environment.cwd, 'opencode.json'), 'utf8')
 }
 

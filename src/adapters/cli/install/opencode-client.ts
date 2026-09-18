@@ -2,17 +2,11 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 
 import { CliFailureError, CliUsageError } from '../errors.js'
+import type { InstallEnvironment } from './environment.js'
 import type { InstallOutcome, InstallRequest } from './install-request.js'
 
 const CONFIG_FILENAME = 'opencode.json'
 const SCHEMA_URL = 'https://opencode.ai/config.json'
-
-export interface OpencodeEnvironment {
-  readonly cwd: string
-  readonly home: string
-  /** `XDG_CONFIG_HOME`, when the platform sets it. */
-  readonly configHome: string | undefined
-}
 
 /**
  * Registers the server with opencode by editing `opencode.json`.
@@ -31,7 +25,7 @@ export interface OpencodeEnvironment {
  */
 export async function installInOpencode(
   request: InstallRequest,
-  environment: OpencodeEnvironment,
+  environment: InstallEnvironment,
 ): Promise<InstallOutcome> {
   const path = resolveConfigPath(request.scope, environment)
   const config = await readConfig(path)
@@ -73,7 +67,7 @@ export async function installInOpencode(
 
 function resolveConfigPath(
   scope: InstallRequest['scope'],
-  environment: OpencodeEnvironment,
+  environment: InstallEnvironment,
 ): string {
   if (scope === 'project') {
     return join(environment.cwd, CONFIG_FILENAME)

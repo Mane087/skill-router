@@ -20,7 +20,14 @@ function dependencies(overrides: Partial<CliDependencies> = {}): {
       return Promise.resolve()
     },
     run: () => Promise.resolve({ code: 0, stdout: '', stderr: '' }),
-    environment: { cwd: '/workspace', home: '/home/someone', configHome: undefined },
+    detect: () => Promise.resolve({ installed: true, evidence: 'found it' }),
+    environment: {
+      cwd: '/workspace',
+      home: '/home/someone',
+      configHome: undefined,
+      path: undefined,
+      pathExtensions: undefined,
+    },
     serverCommand: ['/usr/bin/node', '/opt/skill-router/dist/bootstrap/main.js'],
     out: (line) => out.push(line),
     err: (line) => err.push(line),
@@ -110,6 +117,26 @@ describe('runCli', () => {
       '/opt/skill-router/dist/bootstrap/main.js',
     ])
     expect(out.join('\n')).toContain('Claude Code')
+  })
+
+  it('exits 0 when the client is not on this machine, and says so on stdout', async () => {
+    const { deps, out, err } = dependencies({
+      detect: () =>
+        Promise.resolve({ installed: false, evidence: 'Looked for /home/someone/.codex.' }),
+    })
+
+    expect(await runCli(['install', 'codex'], deps)).toBe(0)
+    expect(out.join('\n')).toContain('Skipped: codex is not installed')
+    expect(err).toEqual([])
+  })
+
+  it('still fails a command that is wrong, even where the client is missing', async () => {
+    const { deps, err } = dependencies({
+      detect: () => Promise.resolve({ installed: false, evidence: 'nothing here' }),
+    })
+
+    expect(await runCli(['install', 'codex', '--scope', 'project'], deps)).toBe(2)
+    expect(err.join('\n')).toContain('config.toml')
   })
 
   it('never serves when it was asked to install', async () => {

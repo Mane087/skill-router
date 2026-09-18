@@ -57,11 +57,45 @@ abstraction that would have to lie about one of the three.
 The binary keeps serving when it is given no argument, so adding subcommands
 changed nothing about how any client launches it.
 
+## Detecting the client
+
+Installing into a client that is not on the machine fails: `claude mcp add`
+cannot run if there is no `claude`, and writing an `opencode.json` for a tool
+nobody has is noise. But failing is the wrong answer, because running all three
+install commands on a machine that has one of them is a setup script and not a
+mistake.
+
+So each client is detected first, and an absent one is **skipped with exit 0**.
+
+Presence is two signals, because each alone is wrong in a case that happens:
+
+- **Its directory** — `~/.claude`, `~/.codex`, `~/.opencode`, and for opencode
+  also `~/.config/opencode`, since the first holds the installation and the
+  second the configuration and a machine can have either without the other. A
+  client that has been used has one. A client installed but never run does not,
+  so the directory alone would skip an install that would have worked.
+- **Its executable on PATH** — present from the moment it is installed. But a
+  process started by an editor or a launcher routinely has a PATH that omits it,
+  so the executable alone would skip a client that is plainly there.
+
+Either is enough. The executable is resolved by reading PATH rather than by
+spawning anything: asking the operating system to run a program in order to find
+out whether it exists runs it.
+
+The scope is validated **before** the machine is inspected. A command that is
+wrong is wrong everywhere, and `install codex --scope project` must fail on a
+machine without Codex too — otherwise a script appears to work on one developer's
+machine and silently does nothing on another's.
+
 ## Consequences
 
 **Codex refuses a project scope** instead of silently widening it to the whole
 machine. It has no per-project MCP configuration, and a scope flag that quietly
 means something else is worse than an error that names the file.
+
+**A skip is not a silence.** It prints the client, every directory it looked in
+and the executable it looked for, so "nothing happened" is always accompanied by
+why.
 
 **A dry run is part of the command, not a debugging aid.** `--dry-run` prints
 the exact `claude mcp add …` line or the exact `opencode.json` entry. It is also
