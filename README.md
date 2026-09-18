@@ -165,7 +165,39 @@ The server speaks MCP over stdio. For Claude Code, add it to `.mcp.json`:
 
 `SKILL_ROUTER_CONFIG` is optional: without it the server scans the directories the
 agents themselves use. From a checkout rather than an installed binary, the command is
-`node` with `args: ["/path/to/dist/bootstrap/start-stdio.js"]`.
+`node` with `args: ["/path/to/dist/bootstrap/main.js"]`.
+
+### Registering it for you
+
+`install` writes that registration itself, for the three clients that have a
+place to put it:
+
+```bash
+skill-router-mcp install claude
+skill-router-mcp install codex
+skill-router-mcp install opencode --scope project
+```
+
+| Client   | How                    | Scopes                                                           |
+| -------- | ---------------------- | ---------------------------------------------------------------- |
+| claude   | `claude mcp add`       | `user`, `project`                                                |
+| codex    | `codex mcp add`        | `user` only — Codex has no per-project MCP configuration         |
+| opencode | merges `opencode.json` | `user` (`~/.config/opencode`), `project` (the working directory) |
+
+Claude Code and Codex are asked through their own CLI, so each keeps ownership
+of its configuration format. opencode is the exception: `opencode mcp add`
+takes `--url`, `--env` and `--header` but no way to give it the command of a
+local server, so its file is merged directly — every other server and every
+unrelated setting is preserved, and an entry that already exists under the same
+name is refused unless `--force` is given.
+
+`--dry-run` prints what would happen and changes nothing. `--name` registers
+under something other than `skill-router`.
+
+The command that gets registered is an absolute path to this build, run with
+the interpreter that is running the install. Not `npx skill-router-mcp`: that
+npm name belongs to an unrelated package, and an agent launched by a desktop
+application rarely shares the PATH of the terminal you typed in.
 
 ### Tools
 

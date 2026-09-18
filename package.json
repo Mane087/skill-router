@@ -9,7 +9,7 @@
   },
   "packageManager": "pnpm@11.25.0",
   "bin": {
-    "skill-router-mcp": "./dist/bootstrap/start-stdio.js"
+    "skill-router-mcp": "./dist/bootstrap/main.js"
   },
   "exports": {
     ".": {
@@ -34,7 +34,7 @@
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
     "eval": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.evals.config.js",
     "eval:baseline": "node --experimental-vm-modules node_modules/jest/bin/jest.js --config jest.evals.config.js && node -e \"const fs=require('fs');fs.copyFileSync('evals/reports/latest.json','evals/baseline.json')\"",
-    "serve": "node dist/bootstrap/start-stdio.js"
+    "serve": "node dist/bootstrap/main.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.30.0",

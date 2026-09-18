@@ -26,6 +26,7 @@ export default {
     '!src/application/ports/**',
     '!src/domain/skill/skill-match.ts',
     '!src/bootstrap/start-stdio.ts',
+    '!src/bootstrap/main.ts',
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text-summary', 'lcov'],

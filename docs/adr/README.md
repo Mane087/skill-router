@@ -4,22 +4,23 @@ One file per decision: the context that forced it, what was decided, and what
 followed. A decision that turned out wrong stays here with what replaced it,
 because the reasoning is the point.
 
-| ADR                                             | Decision                                      |
-| ----------------------------------------------- | --------------------------------------------- |
-| [0001](0001-typescript-and-node.md)             | TypeScript on Node, strict, ESM               |
-| [0002](0002-modular-monolith.md)                | Modular monolith with inward dependencies     |
-| [0003](0003-mcp-as-adapter.md)                  | MCP is an adapter, not the engine             |
-| [0004](0004-deterministic-ranking-first.md)     | Deterministic ranking before embeddings       |
-| [0005](0005-filesystem-trust-model.md)          | Filesystem trust model                        |
-| [0006](0006-no-remote-skill-loading.md)         | No remote skill loading in v1                 |
-| [0007](0007-explicit-scopes.md)                 | Scope is part of a skill's identity           |
-| [0008](0008-jest-over-vitest.md)                | Jest rather than Vitest                       |
-| [0009](0009-subject-match-required.md)          | Retrieval requires a subject match            |
-| [0010](0010-directory-name-is-identity.md)      | A skill's directory name is its name          |
-| [0011](0011-rank-on-the-description.md)         | The description is a ranking signal           |
-| [0012](0012-unknown-frontmatter-is-reported.md) | Unknown frontmatter is reported, not rejected |
-| [0013](0013-linked-global-skills.md)            | A global root may follow a link out of itself |
-| [0014](0014-known-skill-roots.md)               | Default roots are the agents' own directories |
+| ADR                                                   | Decision                                      |
+| ----------------------------------------------------- | --------------------------------------------- |
+| [0001](0001-typescript-and-node.md)                   | TypeScript on Node, strict, ESM               |
+| [0002](0002-modular-monolith.md)                      | Modular monolith with inward dependencies     |
+| [0003](0003-mcp-as-adapter.md)                        | MCP is an adapter, not the engine             |
+| [0004](0004-deterministic-ranking-first.md)           | Deterministic ranking before embeddings       |
+| [0005](0005-filesystem-trust-model.md)                | Filesystem trust model                        |
+| [0006](0006-no-remote-skill-loading.md)               | No remote skill loading in v1                 |
+| [0007](0007-explicit-scopes.md)                       | Scope is part of a skill's identity           |
+| [0008](0008-jest-over-vitest.md)                      | Jest rather than Vitest                       |
+| [0009](0009-subject-match-required.md)                | Retrieval requires a subject match            |
+| [0010](0010-directory-name-is-identity.md)            | A skill's directory name is its name          |
+| [0011](0011-rank-on-the-description.md)               | The description is a ranking signal           |
+| [0012](0012-unknown-frontmatter-is-reported.md)       | Unknown frontmatter is reported, not rejected |
+| [0013](0013-registration-delegates-to-each-client.md) | Registration delegates to each client's CLI   |
+| [0013](0013-linked-global-skills.md)                  | A global root may follow a link out of itself |
+| [0014](0014-known-skill-roots.md)                     | Default roots are the agents' own directories |
 
 ## A note on timing
 
