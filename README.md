@@ -253,6 +253,44 @@ The nudge is advice and never blocks a tool call. The scripts it installs are
 `assets/hook_claude.sh` and `assets/hook_codex.sh`; edit those and run
 `pnpm generate:hooks`.
 
+### The routing-metadata skill
+
+The router ranks on the frontmatter a catalogue declares, and most catalogues
+declare only `name` and `description`. `--skill` installs
+`skill-router-metadata`, which teaches the agent to write the rest: `phases`,
+`intents`, `frameworks`, `languages`, `tags`, `filePatterns`, `related` and
+`excludes`.
+
+```bash
+skill-router-mcp install claude --skill
+skill-router-mcp install codex --hook --skill
+skill-router-mcp install opencode --skill
+```
+
+| Client   | Installed in                                       |
+| -------- | -------------------------------------------------- |
+| claude   | `~/.claude/skills/skill-router-metadata/`          |
+| codex    | `~/.codex/skills/skill-router-metadata/`           |
+| opencode | `~/.config/opencode/skills/skill-router-metadata/` |
+
+`CODEX_HOME` and `XDG_CONFIG_HOME` are followed where the client follows them,
+so the skill lands where that client actually reads.
+
+Unlike `--hook`, this works for all three clients, and it always writes to the
+global skills directory: a skill is a capability of the agent rather than of a
+checkout, so `--scope` does not reach it. `install claude --scope project
+--skill` registers the server in the project and still installs the skill in
+your home directory.
+
+Every file is inspected before any is written. A second run changes nothing. A
+file that differs from what would be written was edited by somebody, and the
+command refuses the whole directory until `--force` says otherwise rather than
+replacing half of it. Files you keep beside the skill are never removed, and
+`--dry-run` names the directory without touching it.
+
+The skill lives in `assets/skill-router-metadata/`; edit it and run
+`pnpm generate:skill`.
+
 ### Tools
 
 | Tool                   | Takes                     | Returns                                               |

@@ -18,6 +18,11 @@ export interface InstallCommand {
   readonly dryRun: boolean
   /** Whether to install the hook that points the agent at this server. */
   readonly hook: boolean
+  /**
+   * Whether to install the routing-metadata skill into the client's skills
+   * directory. Always the global one: `scope` does not reach it.
+   */
+  readonly skill: boolean
 }
 
 export type CliCommand =
@@ -69,6 +74,7 @@ function parseInstall(argv: readonly string[]): InstallCommand {
   let force = false
   let dryRun = false
   let hook = false
+  let skill = false
 
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index] ?? ''
@@ -94,6 +100,9 @@ function parseInstall(argv: readonly string[]): InstallCommand {
       case '--hook':
         hook = true
         break
+      case '--skill':
+        skill = true
+        break
       case '--name':
         name = requireNonEmpty(flag, readValue(flag, inlineValue, argv, index))
         index += inlineValue === undefined ? 1 : 0
@@ -111,7 +120,7 @@ function parseInstall(argv: readonly string[]): InstallCommand {
     throw new CliUsageError(`Install needs a client: ${INSTALL_CLIENTS.join(', ')}.`)
   }
 
-  return { kind: 'install', client, name, scope, force, dryRun, hook }
+  return { kind: 'install', client, name, scope, force, dryRun, hook, skill }
 }
 
 /** Splits `--name=value`, which is as valid as `--name value`. */

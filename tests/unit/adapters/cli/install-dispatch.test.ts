@@ -14,6 +14,7 @@ const COMMAND: InstallCommand = {
   force: false,
   dryRun: false,
   hook: false,
+  skill: false,
 }
 
 /** Every install but one reports a single outcome; this keeps the reading of it honest. */
@@ -169,5 +170,46 @@ describe('install and scopes a client does not have', () => {
     await expect(install({ ...COMMAND, client: 'codex', scope: 'project' }, deps)).rejects.toThrow()
 
     expect(detected).toEqual([])
+  })
+})
+
+describe('install --skill', () => {
+  /**
+   * Planned rather than written: this suite runs against a made-up home
+   * directory, and an installer that writes would put a skill in it.
+   */
+  const PLAN = { ...COMMAND, skill: true, dryRun: true }
+
+  it('reports the registration and the skill, in that order', async () => {
+    const { deps } = dependencies(true)
+
+    const outcomes = await install(PLAN, deps)
+
+    expect(outcomes).toHaveLength(2)
+    expect(outcomes[1]!.summary).toContain('skill-router-metadata')
+  })
+
+  it('is supported on opencode, which has no hook to install', async () => {
+    const { deps } = dependencies(true)
+
+    const outcomes = await install({ ...PLAN, client: 'opencode' }, deps)
+
+    expect(outcomes).toHaveLength(2)
+    expect(outcomes[1]!.action).toBe('planned')
+  })
+
+  it('does not reach the skill when the client is not on this machine', async () => {
+    const { deps } = dependencies(false)
+
+    expect(only(await install(PLAN, deps)).action).toBe('skipped')
+  })
+
+  it('takes the global directory whatever the scope of the registration', async () => {
+    const { deps } = dependencies(true)
+
+    const outcomes = await install({ ...PLAN, scope: 'project' }, deps)
+
+    expect(outcomes[1]!.summary).toContain('/home/someone')
+    expect(outcomes[1]!.summary).not.toContain('/workspace')
   })
 })

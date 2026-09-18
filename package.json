@@ -25,6 +25,7 @@
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
     "generate:hooks": "node scripts/generate-hook-assets.mjs",
+    "generate:skill": "node scripts/generate-skill-assets.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
