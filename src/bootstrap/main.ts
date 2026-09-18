@@ -24,6 +24,7 @@ const exitCode = await runCli(process.argv.slice(2), {
     cwd: process.cwd(),
     home: homedir(),
     configHome: process.env.XDG_CONFIG_HOME,
+    codexHome: process.env.CODEX_HOME,
     path: process.env.PATH,
     pathExtensions: process.env.PATHEXT,
   },

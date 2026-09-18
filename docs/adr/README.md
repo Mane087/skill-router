@@ -21,6 +21,7 @@ because the reasoning is the point.
 | [0013](0013-registration-delegates-to-each-client.md) | Registration delegates to each client's CLI   |
 | [0013](0013-linked-global-skills.md)                  | A global root may follow a link out of itself |
 | [0014](0014-known-skill-roots.md)                     | Default roots are the agents' own directories |
+| [0015](0015-the-nudge-hook-is-installed.md)           | The nudge hook is installed, not documented   |
 
 ## A note on timing
 

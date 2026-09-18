@@ -25,6 +25,7 @@ function dependencies(overrides: Partial<CliDependencies> = {}): {
       cwd: '/workspace',
       home: '/home/someone',
       configHome: undefined,
+      codexHome: undefined,
       path: undefined,
       pathExtensions: undefined,
     },
@@ -137,6 +138,42 @@ describe('runCli', () => {
 
     expect(await runCli(['install', 'codex', '--scope', 'project'], deps)).toBe(2)
     expect(err.join('\n')).toContain('config.toml')
+  })
+
+  it('refuses --hook for opencode, which has plugins rather than PreToolUse hooks', async () => {
+    const { deps, err } = dependencies()
+
+    expect(await runCli(['install', 'opencode', '--hook'], deps)).toBe(2)
+    expect(err.join('\n')).toContain('opencode')
+  })
+
+  it('refuses --hook with a project scope, because the hook it writes is user-level', async () => {
+    const { deps, err } = dependencies()
+
+    expect(await runCli(['install', 'claude', '--hook', '--scope', 'project'], deps)).toBe(2)
+    expect(err.join('\n')).toContain('--scope user')
+  })
+
+  it('fails when jq is missing, since the hook script reads the tool call with it', async () => {
+    const { deps, err } = dependencies()
+
+    expect(await runCli(['install', 'claude', '--hook'], deps)).toBe(1)
+    expect(err.join('\n')).toContain('jq')
+  })
+
+  it('registers nothing when jq is missing, rather than leaving half an install', async () => {
+    const calls: string[][] = []
+    const { deps } = dependencies({
+      run: (command, args) => {
+        calls.push([command, ...args])
+
+        return Promise.resolve({ code: 0, stdout: '', stderr: '' })
+      },
+    })
+
+    await runCli(['install', 'claude', '--hook'], deps)
+
+    expect(calls).toEqual([])
   })
 
   it('never serves when it was asked to install', async () => {

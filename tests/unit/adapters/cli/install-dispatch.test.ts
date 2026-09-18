@@ -4,6 +4,7 @@ import type { InstallCommand } from '../../../../src/adapters/cli/arguments.js'
 import type { ClientDetector } from '../../../../src/adapters/cli/install/client-presence.js'
 import type { CommandRunner } from '../../../../src/adapters/cli/command-runner.js'
 import type { InstallDependencies } from '../../../../src/adapters/cli/install/install.js'
+import type { InstallOutcome } from '../../../../src/adapters/cli/install/install-request.js'
 
 const COMMAND: InstallCommand = {
   kind: 'install',
@@ -12,6 +13,14 @@ const COMMAND: InstallCommand = {
   scope: 'user',
   force: false,
   dryRun: false,
+  hook: false,
+}
+
+/** Every install but one reports a single outcome; this keeps the reading of it honest. */
+function only(outcomes: readonly InstallOutcome[]): InstallOutcome {
+  expect(outcomes).toHaveLength(1)
+
+  return outcomes[0]!
 }
 
 function dependencies(
@@ -42,6 +51,7 @@ function dependencies(
         cwd: '/workspace',
         home: '/home/someone',
         configHome: undefined,
+        codexHome: undefined,
         path: undefined,
         pathExtensions: undefined,
       },
@@ -54,13 +64,13 @@ describe('install on a machine that does not have the client', () => {
   it('skips instead of failing, so a setup script survives a client nobody uses', async () => {
     const { deps } = dependencies(false)
 
-    expect((await install(COMMAND, deps)).action).toBe('skipped')
+    expect(only(await install(COMMAND, deps)).action).toBe('skipped')
   })
 
   it('names the client and everywhere it looked', async () => {
     const { deps } = dependencies(false)
 
-    const outcome = await install(COMMAND, deps)
+    const outcome = only(await install(COMMAND, deps))
 
     expect(outcome.summary).toContain('claude is not installed')
     expect(outcome.summary).toContain('/home/someone/.claude')
@@ -83,7 +93,7 @@ describe('install on a machine that does not have the client', () => {
     const { deps } = dependencies(false)
 
     // A write would need a real path; reaching one would throw rather than skip.
-    const outcome = await install({ ...COMMAND, client: 'opencode' }, deps)
+    const outcome = only(await install({ ...COMMAND, client: 'opencode' }, deps))
 
     expect(outcome.action).toBe('skipped')
   })
@@ -91,7 +101,7 @@ describe('install on a machine that does not have the client', () => {
   it('skips a dry run too, since the answer does not depend on writing anything', async () => {
     const { deps } = dependencies(false)
 
-    expect((await install({ ...COMMAND, dryRun: true }, deps)).action).toBe('skipped')
+    expect(only(await install({ ...COMMAND, dryRun: true }, deps)).action).toBe('skipped')
   })
 })
 
@@ -104,7 +114,7 @@ describe('install on a machine that has the client', () => {
       return Promise.resolve({ code: 0, stdout: '', stderr: '' })
     })
 
-    expect((await install(COMMAND, deps)).action).toBe('added')
+    expect(only(await install(COMMAND, deps)).action).toBe('added')
     expect(calls[0]?.[0]).toBe('claude')
   })
 
@@ -114,6 +124,25 @@ describe('install on a machine that has the client', () => {
     await install({ ...COMMAND, client: 'codex' }, deps)
 
     expect(detected).toEqual(['codex'])
+  })
+})
+
+describe('install --hook before it touches anything', () => {
+  it('refuses a client that has no hook before inspecting the machine', async () => {
+    const { detected, deps } = dependencies(true)
+
+    await expect(install({ ...COMMAND, client: 'opencode', hook: true }, deps)).rejects.toThrow(
+      CliUsageError,
+    )
+    expect(detected).toEqual([])
+  })
+
+  it('refuses a missing requirement before inspecting the machine', async () => {
+    const { detected, deps } = dependencies(true)
+
+    // No PATH, so jq cannot be found, which is what a machine without it looks like.
+    await expect(install({ ...COMMAND, hook: true }, deps)).rejects.toThrow(/jq/)
+    expect(detected).toEqual([])
   })
 })
 

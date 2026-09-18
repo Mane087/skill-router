@@ -21,6 +21,7 @@ describe('parseArguments', () => {
       scope: 'user',
       force: false,
       dryRun: false,
+      hook: false,
     })
   })
 
@@ -47,7 +48,12 @@ describe('parseArguments', () => {
       scope: 'project',
       force: true,
       dryRun: true,
+      hook: false,
     })
+  })
+
+  it('reads --hook, which asks for the nudge hook as well as the registration', () => {
+    expect(parseArguments(['install', 'claude', '--hook'])).toMatchObject({ hook: true })
   })
 
   it('accepts an option written as --name=value', () => {

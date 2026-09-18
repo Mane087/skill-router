@@ -10,6 +10,8 @@ export interface InstallEnvironment {
   readonly home: string
   /** `XDG_CONFIG_HOME`, when the platform sets it. */
   readonly configHome: string | undefined
+  /** `CODEX_HOME`, which moves everything Codex reads away from `~/.codex`. */
+  readonly codexHome: string | undefined
   readonly path: string | undefined
   /** `PATHEXT`, which is what makes an file executable on Windows. */
   readonly pathExtensions: string | undefined

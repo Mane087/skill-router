@@ -54,9 +54,12 @@ export async function runCli(
         return 0
 
       case 'install': {
-        const outcome = await install(command, dependencies)
-
-        dependencies.out(`${describeAction(outcome.action)}${outcome.summary}`)
+        // One line per thing that was touched: registering the server and
+        // installing the hook are two acts, and a single line would have to
+        // leave one of them out.
+        for (const outcome of await install(command, dependencies)) {
+          dependencies.out(`${describeAction(outcome.action)}${outcome.summary}`)
+        }
 
         return 0
       }

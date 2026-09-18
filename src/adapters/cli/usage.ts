@@ -20,10 +20,13 @@ Clients
 Install options
   --name <name>     Name to register under. Default: ${DEFAULT_SERVER_NAME}.
   --scope <scope>   ${INSTALL_SCOPES.join(' or ')}. Default: user.
+  --hook            Also install the PreToolUse hook that points the agent at
+                    this server. claude and codex only, user scope, needs jq.
   --force           Replace an entry that already exists under that name.
   --dry-run         Print what would happen and change nothing.
 
 Examples
   skill-router-mcp install claude
+  skill-router-mcp install claude --hook
   skill-router-mcp install opencode --scope project
   skill-router-mcp install ${INSTALL_CLIENTS[2]} --name skills --force --dry-run`

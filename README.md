@@ -218,6 +218,41 @@ the interpreter that is running the install. Not `npx skill-router-mcp`: that
 npm name belongs to an unrelated package, and an agent launched by a desktop
 application rarely shares the PATH of the terminal you typed in.
 
+### The nudge hook
+
+Registering the server makes its tools available; it does not make an agent
+reach for them. `--hook` also installs a `PreToolUse` hook that tells the agent
+the router is there, once per session, when it is about to go looking for
+skills by hand:
+
+```bash
+skill-router-mcp install claude --hook
+skill-router-mcp install codex --hook
+```
+
+| Client | Script                                  | Registered in                                 |
+| ------ | --------------------------------------- | --------------------------------------------- |
+| claude | `~/.claude/hooks/skill-router-nudge.sh` | `~/.claude/settings.json`, `hooks.PreToolUse` |
+| codex  | `~/.codex/hooks/skill-router-nudge.sh`  | `~/.codex/hooks.json`, `hooks.PreToolUse`     |
+
+The script reads the tool call with **`jq`**, so `jq` has to be on PATH. That is
+checked before anything is written: without it the command fails and registers
+nothing, rather than leaving half an install behind.
+
+`--hook` is not supported for opencode, which has plugins rather than
+`PreToolUse` hooks, and it has no project scope: both files it writes live in
+your home directory. Both are refused as usage errors instead of quietly doing
+nothing.
+
+Both configuration files are merged, so other hooks and unrelated settings
+survive. A second run changes nothing. A script or an entry that differs from
+what would be written was edited by somebody and is left alone until `--force`
+says otherwise, and `--dry-run` names both files without touching either.
+
+The nudge is advice and never blocks a tool call. The scripts it installs are
+`assets/hook_claude.sh` and `assets/hook_codex.sh`; edit those and run
+`pnpm generate:hooks`.
+
 ### Tools
 
 | Tool                   | Takes                     | Returns                                               |
