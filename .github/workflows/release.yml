@@ -84,7 +84,7 @@ jobs:
             bun build --compile --sourcemap \
               --target="$target" \
               --outfile="artifacts/$output" \
-              dist/bootstrap/start-stdio.js
+              dist/bootstrap/main.js
             echo "::endgroup::"
           }
 

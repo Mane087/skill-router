@@ -1,13 +1,14 @@
-#!/usr/bin/env node
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 
 import { createContainer } from './container.js'
 
 /**
+ * Serves the MCP session over stdio.
+ *
  * stdout is reserved for the JSON-RPC stream, so every diagnostic goes to
  * stderr. Writing anything else to stdout corrupts the MCP session.
  */
-async function main(): Promise<void> {
+export async function startStdio(): Promise<void> {
   const { server, diagnostics } = await createContainer({
     configPath: process.env.SKILL_ROUTER_CONFIG,
   })
@@ -20,8 +21,3 @@ async function main(): Promise<void> {
 
   await server.connect(new StdioServerTransport())
 }
-
-main().catch((error: unknown) => {
-  console.error('skill-router-mcp failed to start:', error)
-  process.exitCode = 1
-})

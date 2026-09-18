@@ -4,3 +4,4 @@ node_modules/
 private/
 pnpm-lock.yaml
 .claude/settings.local.json
+src/adapters/cli/install/hooks/hook-scripts.generated.ts
