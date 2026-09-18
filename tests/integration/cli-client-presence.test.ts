@@ -41,6 +41,7 @@ async function makeEnvironment(
     cwd: root,
     home,
     configHome: undefined,
+    codexHome: undefined,
     path: bin,
     pathExtensions: undefined,
   }

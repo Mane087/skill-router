@@ -46,6 +46,7 @@ async function makeEnvironment(existing?: unknown): Promise<InstallEnvironment> 
     cwd,
     home: join(cwd, 'home'),
     configHome: undefined,
+    codexHome: undefined,
     path: undefined,
     pathExtensions: undefined,
   }
