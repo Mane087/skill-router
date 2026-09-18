@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 
 import { CliFailureError, CliUsageError } from '../errors.js'
+import { userConfigDirectory } from './environment.js'
 import type { InstallEnvironment } from './environment.js'
 import type { InstallOutcome, InstallRequest } from './install-request.js'
 
@@ -73,9 +74,7 @@ function resolveConfigPath(
     return join(environment.cwd, CONFIG_FILENAME)
   }
 
-  const base = environment.configHome ?? join(environment.home, '.config')
-
-  return join(base, 'opencode', CONFIG_FILENAME)
+  return join(userConfigDirectory(environment), 'opencode', CONFIG_FILENAME)
 }
 
 /** An absent file is not an error: it is the first install on this machine. */

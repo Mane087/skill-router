@@ -5,3 +5,4 @@ private/
 pnpm-lock.yaml
 .claude/settings.local.json
 src/adapters/cli/install/hooks/hook-scripts.generated.ts
+src/adapters/cli/install/skill/skill-files.generated.ts

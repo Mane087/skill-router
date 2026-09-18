@@ -1,3 +1,5 @@
+import { join } from 'node:path'
+
 /**
  * Everything the install commands read from the machine they run on.
  *
@@ -15,4 +17,16 @@ export interface InstallEnvironment {
   readonly path: string | undefined
   /** `PATHEXT`, which is what makes an file executable on Windows. */
   readonly pathExtensions: string | undefined
+}
+
+/**
+ * Where a client that follows the XDG convention keeps its configuration.
+ *
+ * Shared because more than one thing is written under it: opencode's
+ * `opencode.json` and its skills directory both live here, and resolving the
+ * fallback twice would let the two drift apart on a machine that sets
+ * `XDG_CONFIG_HOME`.
+ */
+export function userConfigDirectory(environment: InstallEnvironment): string {
+  return environment.configHome ?? join(environment.home, '.config')
 }

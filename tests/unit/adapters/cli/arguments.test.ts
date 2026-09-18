@@ -22,6 +22,7 @@ describe('parseArguments', () => {
       force: false,
       dryRun: false,
       hook: false,
+      skill: false,
     })
   })
 
@@ -49,11 +50,23 @@ describe('parseArguments', () => {
       force: true,
       dryRun: true,
       hook: false,
+      skill: false,
     })
   })
 
   it('reads --hook, which asks for the nudge hook as well as the registration', () => {
     expect(parseArguments(['install', 'claude', '--hook'])).toMatchObject({ hook: true })
+  })
+
+  it('reads --skill, which asks for the routing-metadata skill as well', () => {
+    expect(parseArguments(['install', 'claude', '--skill'])).toMatchObject({ skill: true })
+  })
+
+  it('reads --hook and --skill together, since neither replaces the other', () => {
+    expect(parseArguments(['install', 'codex', '--hook', '--skill'])).toMatchObject({
+      hook: true,
+      skill: true,
+    })
   })
 
   it('accepts an option written as --name=value', () => {

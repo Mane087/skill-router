@@ -6,6 +6,8 @@ import { assertHookRequirements, assertHookSupported } from './hooks/hook-precon
 import { installInClaude } from './claude-client.js'
 import { installInCodex } from './codex-client.js'
 import { installInOpencode } from './opencode-client.js'
+import { installSkill } from './skill/skill-installer.js'
+import { skillTarget } from './skill/skill-target.js'
 import type { HookClient, HookTarget } from './hooks/hook-target.js'
 import type { InstallCommand } from '../arguments.js'
 import type { ClientDetector } from './client-presence.js'
@@ -41,9 +43,10 @@ export interface InstallDependencies {
  * kept visible here rather than hidden behind a uniform abstraction that would
  * have to lie about one of them.
  *
- * Returns one outcome per thing that was touched, because `--hook` makes this
- * two acts that can land differently: a registration that was already there and
- * a hook that was not.
+ * Returns one outcome per thing that was touched, because `--hook` and
+ * `--skill` make this up to three acts that can land differently: a
+ * registration that was already there, a hook that was not, and a skill that
+ * was installed by an earlier version.
  */
 export async function install(
   command: InstallCommand,
@@ -72,6 +75,15 @@ export async function install(
 
   if (hookClient !== undefined) {
     outcomes.push(await installHook(hookTarget(hookClient, dependencies.environment), command))
+  }
+
+  // Last, and after the registration, so the order the outcomes are printed in
+  // is the order the agent meets them: it finds the server, then the hook that
+  // points at it, then the skill that fills the catalogue the server ranks.
+  if (command.skill) {
+    outcomes.push(
+      await installSkill(skillTarget(command.client, dependencies.environment), command),
+    )
   }
 
   return outcomes
