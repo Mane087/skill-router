@@ -195,4 +195,15 @@ describe('resolveServerCommand', () => {
   it('pins the interpreter that is running, not whatever "node" resolves to later', () => {
     expect(resolveServerCommand('file:///opt/app/dist/bootstrap/main.js')[0]).toBe(process.execPath)
   })
+
+  // A compiled binary is its own interpreter, and its entry point resolves
+  // inside Bun's virtual filesystem. Registering that path as a second element
+  // hands the binary its own virtual path as a subcommand, which it rejects,
+  // so the client only ever sees the connection close.
+  it.each([
+    ['linux and macOS', 'file:///$bunfs/root/skill-router-mcp-linux-x64'],
+    ['windows', 'file:///B:/~BUN/root/skill-router-mcp-windows-x64.exe'],
+  ])('registers the executable alone for a compiled binary on %s', (_platform, entryUrl) => {
+    expect(resolveServerCommand(entryUrl)).toEqual([process.execPath])
+  })
 })

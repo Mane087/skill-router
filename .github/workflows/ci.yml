@@ -57,6 +57,15 @@ jobs:
       - name: Build
         run: pnpm build
 
+      # The unit suite calls the CLI in process, so the command it would
+      # register with a client is never launched. This runs the build over real
+      # stdio and then launches exactly what `install --dry-run` planned. The
+      # release workflow does the same against each compiled binary, which is
+      # where the interpreter and the entry point stop being what Node makes
+      # them.
+      - name: Speak MCP to the build and to the command it registers
+        run: node scripts/smoke-test.mjs "$(command -v node)" dist/bootstrap/main.js
+
       - name: Upload coverage report
         if: always()
         uses: actions/upload-artifact@v7

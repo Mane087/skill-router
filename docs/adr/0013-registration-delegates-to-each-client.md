@@ -57,6 +57,16 @@ abstraction that would have to lie about one of the three.
 The binary keeps serving when it is given no argument, so adding subcommands
 changed nothing about how any client launches it.
 
+**A compiled binary registers as itself, with no second element.** Both reasons
+above are about finding an interpreter, and a `bun build --compile` binary
+carries its own: `process.execPath` is the binary rather than a runtime, and
+its entry point resolves inside Bun's virtual filesystem (`/$bunfs/root/…`,
+`B:\~BUN\…` on Windows), a path no process can open. Registering the pair gave
+the binary its own virtual path as a subcommand, which it rejected, so every
+client reported a closed connection. The entry point is checked for that
+prefix and the executable alone becomes the command, which works because the
+binary serves when it is given no argument.
+
 ## Detecting the client
 
 Installing into a client that is not on the machine fails: `claude mcp add`
@@ -114,3 +124,10 @@ can still be done by hand.
 which dispatches. `start-stdio.ts` is now a module exporting `startStdio()`. The
 release workflow compiles the new entry point, or the released binaries would
 serve but not install.
+
+**The registration is proven by launching it.** A unit test cannot reach the
+compiled case: it runs on Node, where the entry point is a real file. So the
+release smoke test now runs `install claude --dry-run` against each binary,
+parses the command it plans to register and completes an MCP handshake with
+exactly that command. Serving and registering were two claims and only the
+first was checked.
