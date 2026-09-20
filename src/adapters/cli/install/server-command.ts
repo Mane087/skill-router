@@ -4,11 +4,18 @@ import { fileURLToPath } from 'node:url'
  * Where Bun places the entry point of a `bun build --compile` binary.
  *
  * `/$bunfs/root/<asset>` on Linux and macOS, `B:\~BUN\root\<asset>` on
- * Windows. Both are matched against the URL with its separators normalised,
- * so the Windows form is recognised while running on any platform, and
- * `fileURLToPath` is never asked to convert a path no process can open.
+ * Windows. Matched against the converted path rather than the URL: the two
+ * are not the same text, and the Windows form only becomes recognisable once
+ * `fileURLToPath` has decoded it. Separators are normalised and the
+ * comparison is lowercased, so a unit test on any platform sees what the
+ * binary would see.
+ *
+ * The Windows form is anchored to its drive letter. `~bun` is a plausible
+ * directory name, and a path that merely contains it belongs to whoever
+ * created it, not to Bun.
  */
-const COMPILED_ENTRY_MARKERS = ['/$bunfs/', '/~bun/']
+const BUNFS_ROOT = '/$bunfs/'
+const BUN_DRIVE_ROOT = /(^|\/)b:\/~bun\//
 
 /**
  * The command a client should run to launch this server.
@@ -34,15 +41,25 @@ const COMPILED_ENTRY_MARKERS = ['/$bunfs/', '/~bun/']
  * @param entryUrl `import.meta.url` of the binary entry point.
  */
 export function resolveServerCommand(entryUrl: string): readonly string[] {
-  if (isCompiledEntry(entryUrl)) {
+  const entryPath = fileURLToPath(entryUrl)
+
+  if (isCompiledEntryPath(entryPath)) {
     return [process.execPath]
   }
 
-  return [process.execPath, fileURLToPath(entryUrl)]
+  return [process.execPath, entryPath]
 }
 
-function isCompiledEntry(entryUrl: string): boolean {
-  const normalised = entryUrl.toLowerCase().replaceAll('\\', '/')
+/**
+ * Whether a resolved entry point is Bun's, rather than a file on disk.
+ *
+ * Exported because the Windows form cannot be reached through
+ * `resolveServerCommand` from anywhere else: `fileURLToPath` only produces
+ * `B:\~BUN\…` when it runs on Windows, and the suite runs on Node wherever
+ * it is checked out. A test gives it the path the binary would see.
+ */
+export function isCompiledEntryPath(entryPath: string): boolean {
+  const normalised = entryPath.toLowerCase().replaceAll('\\', '/')
 
-  return COMPILED_ENTRY_MARKERS.some((marker) => normalised.includes(marker))
+  return normalised.includes(BUNFS_ROOT) || BUN_DRIVE_ROOT.test(normalised)
 }
