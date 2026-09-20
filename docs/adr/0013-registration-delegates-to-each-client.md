@@ -63,9 +63,15 @@ carries its own: `process.execPath` is the binary rather than a runtime, and
 its entry point resolves inside Bun's virtual filesystem (`/$bunfs/root/…`,
 `B:\~BUN\…` on Windows), a path no process can open. Registering the pair gave
 the binary its own virtual path as a subcommand, which it rejected, so every
-client reported a closed connection. The entry point is checked for that
-prefix and the executable alone becomes the command, which works because the
-binary serves when it is given no argument.
+client reported a closed connection. The executable alone becomes the command,
+which works because the binary serves when it is given no argument.
+
+The check reads the **resolved path**, not `import.meta.url`. The first attempt
+matched the URL and shipped, because a unit test on Node cannot tell the two
+apart; the release smoke test then caught the Windows binary still registering
+its virtual path. A `file:` URL and the path it converts to are not the same
+text, and the path is what the binary is handed. The Windows form is anchored
+to Bun's drive letter, since `~bun` is a directory anybody may create.
 
 ## Detecting the client
 

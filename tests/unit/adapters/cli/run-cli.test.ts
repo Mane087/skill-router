@@ -1,4 +1,7 @@
-import { resolveServerCommand } from '../../../../src/adapters/cli/install/server-command.js'
+import {
+  isCompiledEntryPath,
+  resolveServerCommand,
+} from '../../../../src/adapters/cli/install/server-command.js'
 import { runCli } from '../../../../src/adapters/cli/run-cli.js'
 import { SERVER_VERSION } from '../../../../src/adapters/mcp/server-metadata.js'
 import type { CliDependencies } from '../../../../src/adapters/cli/run-cli.js'
@@ -203,7 +206,32 @@ describe('resolveServerCommand', () => {
   it.each([
     ['linux and macOS', 'file:///$bunfs/root/skill-router-mcp-linux-x64'],
     ['windows', 'file:///B:/~BUN/root/skill-router-mcp-windows-x64.exe'],
+    // The release smoke test found the Windows binary registering its virtual
+    // path while this returned a single element for the URL above. The URL and
+    // the path it converts to are not the same text, and only the path is what
+    // the binary is handed, so the detection reads the path.
+    ['windows, with the tilde escaped', 'file:///B:/%7EBUN/root/skill-router-mcp-windows-x64.exe'],
   ])('registers the executable alone for a compiled binary on %s', (_platform, entryUrl) => {
     expect(resolveServerCommand(entryUrl)).toEqual([process.execPath])
+  })
+})
+
+describe('isCompiledEntryPath', () => {
+  // `fileURLToPath` only spells a Windows path with backslashes when it runs on
+  // Windows, so this is the only place the real one can be asserted.
+  it.each([
+    ['/$bunfs/root/skill-router-mcp-linux-x64'],
+    ['B:\\~BUN\\root\\skill-router-mcp-windows-x64.exe'],
+  ])("recognises %s as Bun's own entry point", (entryPath) => {
+    expect(isCompiledEntryPath(entryPath)).toBe(true)
+  })
+
+  // `~bun` is a directory anybody may create. Only Bun's drive makes it Bun's.
+  it.each([
+    ['/opt/app/dist/bootstrap/main.js'],
+    ['/home/me/~bun/app/dist/bootstrap/main.js'],
+    ['C:\\Users\\me\\~bun\\app\\main.js'],
+  ])('leaves %s alone', (entryPath) => {
+    expect(isCompiledEntryPath(entryPath)).toBe(false)
   })
 })
