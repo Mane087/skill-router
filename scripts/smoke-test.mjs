@@ -38,7 +38,14 @@ try {
 
 async function main() {
   const config = await writeCatalog()
-  const server = start(config)
+
+  await exerciseTools(config)
+  await checkRegistration(config)
+}
+
+/** Every tool, over stdio, against the binary this script was handed. */
+async function exerciseTools(config) {
+  const server = start(config, [command, ...args])
 
   try {
     const initialized = await server.request('initialize', {
@@ -117,6 +124,126 @@ async function main() {
   }
 }
 
+/**
+ * Registers the server the way `install` would, then launches exactly what was
+ * registered.
+ *
+ * Everything above runs the binary the way this script was invoked, which is
+ * never how a client runs it. The command written into a client's
+ * configuration is built separately, and it has been wrong in a way no check
+ * here could see: a compiled binary was registered with its own virtual entry
+ * path as an argument, so every client reported a closed connection while the
+ * smoke test stayed green.
+ */
+async function checkRegistration(config) {
+  const home = join(workspace, 'home')
+
+  // An install is skipped unless the client looks present, and its directory is
+  // one of the two signals. Staged under a temporary home, so the runner's own
+  // configuration is neither read nor written, and `--dry-run` means no CLI is
+  // called even if a real one happens to be on PATH.
+  await mkdir(join(home, '.claude'), { recursive: true })
+
+  const printed = await capture(
+    command,
+    [...args, 'install', 'claude', '--name', 'smoke', '--dry-run'],
+    {
+      HOME: home,
+      USERPROFILE: home,
+    },
+  )
+
+  const planned = printed.split('\n').find((line) => line.startsWith('Would run: '))
+
+  expect(planned !== undefined, `install --dry-run printed no command: ${printed.trim()}`)
+
+  const separator = ' -- '
+  const index = planned.indexOf(separator)
+
+  expect(index >= 0, `the planned registration carries no launch command: ${planned}`)
+
+  const launch = splitLaunch(planned.slice(index + separator.length))
+
+  report('install --dry-run', launch.join(' '))
+
+  const server = start(config, launch)
+
+  try {
+    const initialized = await server.request('initialize', {
+      protocolVersion: PROTOCOL_VERSION,
+      capabilities: {},
+      clientInfo: { name: 'smoke-test', version: '1.0.0' },
+    })
+
+    expect(
+      typeof initialized.serverInfo?.name === 'string',
+      `the registered command did not answer the handshake: ${JSON.stringify(initialized)}`,
+    )
+    report('registered command', `${initialized.serverInfo.name} answered the handshake`)
+  } finally {
+    await server.stop()
+  }
+}
+
+/**
+ * Splits a printed launch command back into an executable and its arguments.
+ *
+ * It was joined with spaces, which a path containing one would make ambiguous,
+ * so the executable this script was given is matched as a prefix before the
+ * rest is split.
+ */
+function splitLaunch(text) {
+  if (text === command) {
+    return [command]
+  }
+
+  if (text.startsWith(`${command} `)) {
+    return [command, ...text.slice(command.length + 1).split(' ')]
+  }
+
+  return text.split(' ')
+}
+
+/** Runs the binary once and returns its stdout, failing on a non-zero exit. */
+function capture(executable, argv, env) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(executable, argv, {
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: { ...process.env, ...env },
+    })
+
+    let stdout = ''
+    const stderr = []
+
+    child.stdout.setEncoding('utf8')
+    child.stdout.on('data', (chunk) => {
+      stdout += chunk
+    })
+
+    child.stderr.setEncoding('utf8')
+    child.stderr.on('data', (chunk) => {
+      stderr.push(chunk)
+    })
+
+    child.on('error', (error) => {
+      reject(new Error(`${executable} could not be started: ${error.message}`))
+    })
+
+    child.on('close', (code) => {
+      if (code === 0) {
+        resolve(stdout)
+        return
+      }
+
+      reject(
+        new Error(
+          `${[executable, ...argv].join(' ')} exited with code ${String(code)}${describeStderr(stderr)}`,
+        ),
+      )
+    })
+  })
+}
+
 /** A catalog small enough to assert on, written where the server can read it. */
 async function writeCatalog() {
   const root = join(workspace, 'skills')
@@ -157,8 +284,8 @@ async function writeCatalog() {
 }
 
 /** A JSON-RPC client over the child's stdio, one message per line. */
-function start(config) {
-  const child = spawn(command, args, {
+function start(config, launch) {
+  const child = spawn(launch[0], launch.slice(1), {
     stdio: ['pipe', 'pipe', 'pipe'],
     env: { ...process.env, SKILL_ROUTER_CONFIG: config },
   })
