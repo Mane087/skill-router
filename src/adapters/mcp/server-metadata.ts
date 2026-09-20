@@ -8,4 +8,4 @@
  * stale constant makes a bug report name a version that was never released.
  */
 export const SERVER_NAME = 'skill-router-mcp'
-export const SERVER_VERSION = '0.2.2'
+export const SERVER_VERSION = '0.2.3'
