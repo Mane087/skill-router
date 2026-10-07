@@ -81,4 +81,12 @@ describe('scoreDescription', () => {
 
     expect(result.detail).toBe('angular, component, service')
   })
+
+  it('matches an accented word composed on one side and decomposed on the other', () => {
+    const result = score('Revisa la configuraci\u00f3n del servidor.', {
+      task: 'configuracio\u0301n',
+    })
+
+    expect(result).toMatchObject({ ratio: 1, detail: 'configuración' })
+  })
 })

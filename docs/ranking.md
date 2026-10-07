@@ -136,6 +136,10 @@ tests" does not match a skill tagged `testing`, and `test` never matches inside
 the plan defers to BM25 and embeddings, once the evaluation suite shows the
 deterministic ranking is not enough.
 
+Words are split on anything that is not a Unicode letter, mark or digit, after
+NFC normalization, so "configuración" stays one word. Accents are not folded:
+"configuracion" and "configuración" are different words.
+
 **Every term in a description counts the same.** There is no term weighting, so
 a word that half the catalog uses counts as much as one only a single skill
 uses. A short query made of common words therefore produces a group of skills

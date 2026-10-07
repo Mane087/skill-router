@@ -89,11 +89,18 @@ const STOP_WORDS: ReadonlySet<string> = new Set([
 /** Below this, a word is an article or a pronoun far more often than a term. */
 const MIN_CONTENT_WORD_LENGTH = 3
 
-/** The whole words of a free-text field, lowercased. */
+/**
+ * The whole words of a free-text field, lowercased.
+ *
+ * Letters are matched by Unicode class, not by `a-z`, so an accented word such
+ * as "configuración" stays one word instead of breaking at the accent. NFC
+ * keeps a composed and a decomposed accent from producing two different words.
+ */
 export function splitWords(text: string): string[] {
   return text
+    .normalize('NFC')
     .toLowerCase()
-    .split(/[^a-z0-9]+/)
+    .split(/[^\p{L}\p{M}\p{N}]+/u)
     .filter((word) => word.length > 0)
 }
 

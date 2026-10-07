@@ -66,6 +66,12 @@ describe('scoreLexical', () => {
     expect(score(['testing'], { task: 'write unit tests' }).ratio).toBe(0)
   })
 
+  it('keeps an accented word whole instead of splitting it at the accent', () => {
+    const result = score(['configuración'], { task: 'revisar la configuración del servidor' })
+
+    expect(result).toMatchObject({ ratio: 1, detail: 'configuración' })
+  })
+
   it('reports the weight it was given', () => {
     expect(score(['component'], { task: 'a component' }).weight).toBe(WEIGHT)
   })
