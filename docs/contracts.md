@@ -10,12 +10,18 @@ A search request, after validation and normalization.
 
 | Field      | Required | Meaning                                             |
 | ---------- | -------- | --------------------------------------------------- |
-| `task`     | yes      | What the agent is about to do, in its own words     |
+| `task`     | yes      | What the agent is about to do, written in English   |
 | `phase`    | no       | `planning`, `implementation`, `testing` or `review` |
 | `stack`    | no       | Languages and frameworks, mixed, in any order       |
 | `files`    | no       | Paths the task touches                              |
-| `keywords` | no       | Extra terms not present in the task                 |
+| `keywords` | no       | Extra English terms not present in the task         |
 | `limit`    | no       | Results wanted; defaults to 5, capped at 10         |
+
+`task` and `keywords` must be in English. They are matched word by word
+against tags, intents and descriptions, which are written in English; there is
+no translation, and the description signal uses an English stemmer and English
+stop words. A task written in another language only ranks through `phase`,
+`stack` and `files`.
 
 `stack` mixes languages and frameworks deliberately: a calling agent has no
 reason to know which "typescript" is, so every term is matched against both.

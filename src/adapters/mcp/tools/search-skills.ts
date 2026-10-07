@@ -6,14 +6,18 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import type { SearchSkills } from '../../../application/search-skills.js'
 
 const inputSchema = {
-  task: z.string().describe('What the agent is about to do, in its own words.'),
+  task: z
+    .string()
+    .describe(
+      'What the agent is about to do, written in English. Skill metadata is matched word by word against English terms, with no translation.',
+    ),
   phase: z
     .enum(SKILL_PHASES)
     .optional()
     .describe('Lifecycle phase of the task. The strongest ranking signal.'),
   stack: z.array(z.string()).optional().describe('Languages and frameworks in play, in any order.'),
   files: z.array(z.string()).optional().describe('Paths the task touches.'),
-  keywords: z.array(z.string()).optional().describe('Extra terms not present in the task.'),
+  keywords: z.array(z.string()).optional().describe('Extra English terms not present in the task.'),
   limit: z.number().int().positive().optional().describe('How many skills to return.'),
 }
 
